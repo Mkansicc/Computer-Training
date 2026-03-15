@@ -1,8 +1,8 @@
-// Firebase imports for browser + GitHub Pages
+// FIREBASE IMPORTS
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-// Firebase config
+// FIREBASE CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyD55TZo8jQg7lI2bnO68yn2z3a9KsOsQWs",
   authDomain: "computer-training-d3147.firebaseapp.com",
@@ -13,88 +13,92 @@ const firebaseConfig = {
   measurementId: "G-CJPNVG3JD2"
 };
 
-// Initialize Firebase
+// INITIALIZE FIREBASE
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const db = getFirestore(app);
 
-// Student data
-let students = [];
 
-// Show section
+// SHOW PAGE
 function show(id) {
-  document.querySelectorAll("section").forEach((section) => {
-    section.classList.add("hide");
-  });
 
-  document.getElementById(id).classList.remove("hide");
+document.querySelectorAll("section").forEach(s => {
+s.classList.add("hide")
+})
+
+document.getElementById(id).classList.remove("hide")
+
 }
 
-// Register student
-function register() {
-  const name = document.getElementById("name").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const pass = document.getElementById("password").value.trim();
-  const course = document.getElementById("course").value;
 
-  if (!name || !email || !pass) {
-    document.getElementById("regmsg").innerHTML = "Please fill in all fields";
-    return;
-  }
+// REGISTER STUDENT → SAVE TO FIRESTORE
+async function register(){
 
-  students.push({
-    name: name,
-    email: email,
-    password: pass,
-    course: course
-  });
+let name=document.getElementById("name").value
+let email=document.getElementById("email").value
+let pass=document.getElementById("password").value
+let course=document.getElementById("course").value
 
-  document.getElementById("regmsg").innerHTML = "Student Registered";
-  document.getElementById("name").value = "";
-  document.getElementById("email").value = "";
-  document.getElementById("password").value = "";
-  document.getElementById("course").selectedIndex = 0;
+try {
 
-  updateTable();
+await addDoc(collection(db,"students"),{
+name:name,
+email:email,
+course:course
+})
+
+document.getElementById("regmsg").innerHTML="Student Registered Online"
+
+loadStudents()
+
+} catch(e){
+
+document.getElementById("regmsg").innerHTML="Error saving student"
+
 }
 
-// Login student
-function login() {
-  const email = document.getElementById("logemail").value.trim();
-  const pass = document.getElementById("logpass").value.trim();
-
-  const user = students.find(
-    (student) => student.email === email && student.password === pass
-  );
-
-  if (user) {
-    document.getElementById("loginmsg").innerHTML =
-      "Login Success<br>Name: " + user.name + "<br>Course: " + user.course;
-  } else {
-    document.getElementById("loginmsg").innerHTML = "Wrong Login";
-  }
 }
 
-// Update students table
-function updateTable() {
-  const table = document.getElementById("studentTable");
-  table.innerHTML = "";
 
-  students.forEach((student) => {
-    const row = `
-      <tr>
-        <td>${student.name}</td>
-        <td>${student.email}</td>
-        <td>${student.course}</td>
-      </tr>
-    `;
-    table.innerHTML += row;
-  });
+// LOAD STUDENTS FROM FIREBASE
+async function loadStudents(){
+
+let table=document.getElementById("studentTable")
+
+table.innerHTML=""
+
+const querySnapshot = await getDocs(collection(db,"students"))
+
+querySnapshot.forEach((doc)=>{
+
+let data=doc.data()
+
+let row=`
+<tr>
+<td>${data.name}</td>
+<td>${data.email}</td>
+<td>${data.course}</td>
+</tr>
+`
+
+table.innerHTML+=row
+
+})
+
 }
 
-// Show home first
-show("home");
 
-// Make functions available to buttons in HTML
-window.show = show;
-window.register = register;
-window.login = login;
+// LOGIN (simple demo)
+function login(){
+
+document.getElementById("loginmsg").innerHTML="Login system ready"
+
+}
+
+
+// INITIAL LOAD
+loadStudents()
+
+// MAKE FUNCTIONS GLOBAL
+window.show=show
+window.register=register
+window.login=login
