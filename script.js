@@ -1,115 +1,72 @@
-let students=[];
+let students=[]
 
-function showSection(id){
+function show(id){
 
-let pages=document.querySelectorAll('.page');
+document.querySelectorAll("section").forEach(s=>{
+s.classList.add("hide")
+})
 
-pages.forEach(p=>p.style.display='none');
-
-document.getElementById(id).style.display='block';
+document.getElementById(id).classList.remove("hide")
 
 }
 
-showSection('home');
+function register(){
 
-document.getElementById('registerForm').addEventListener('submit',function(e){
+let name=document.getElementById("name").value
+let email=document.getElementById("email").value
+let pass=document.getElementById("password").value
+let course=document.getElementById("course").value
 
-e.preventDefault();
+students.push({
+name:name,
+email:email,
+password:pass,
+course:course
+})
 
-let name=document.getElementById('name').value;
-let email=document.getElementById('email').value;
-let course=document.getElementById('course').value;
+document.getElementById("regmsg").innerHTML="Student Registered"
 
-students.push({name,email,course});
+updateTable()
 
-updateStudents();
+}
 
-this.reset();
+function login(){
 
-});
+let email=document.getElementById("logemail").value
+let pass=document.getElementById("logpass").value
 
-function updateStudents(){
+let user=students.find(s=>s.email==email && s.password==pass)
 
-let list=document.getElementById('studentList');
+if(user){
 
-list.innerHTML='';
+document.getElementById("loginmsg").innerHTML="Login Success"
+
+}else{
+
+document.getElementById("loginmsg").innerHTML="Wrong Login"
+
+}
+
+}
+
+function updateTable(){
+
+let table=document.getElementById("studentTable")
+
+table.innerHTML=""
 
 students.forEach(s=>{
 
-let li=document.createElement('li');
+let row=`
+<tr>
+<td>${s.name}</td>
+<td>${s.email}</td>
+<td>${s.course}</td>
+</tr>
+`
 
-li.innerText=s.name+" - "+s.course;
+table.innerHTML+=row
 
-list.appendChild(li);
-
-});
-
-document.getElementById('studentCount').innerText=students.length;
-
-}
-
-function studentLogin(){
-
-let email=document.getElementById('loginEmail').value;
-
-let student=students.find(s=>s.email===email);
-
-if(student){
-
-document.getElementById('studentDashboard').innerHTML=
-
-"Welcome "+student.name+"<br>Course: "+student.course;
-
-}else{
-
-alert("Student not found");
-
-}
-
-}
-
-function adminLogin(){
-
-let user=document.getElementById('adminUser').value;
-
-let pass=document.getElementById('adminPass').value;
-
-if(user=="admin" && pass=="1234"){
-
-document.getElementById('adminPanel').innerHTML=
-
-"Admin Logged In<br>Total Students: "+students.length;
-
-}else{
-
-alert("Wrong login");
-
-}
-
-}
-
-function generateCertificate(){
-
-let name=document.getElementById('certName').value;
-
-let course=document.getElementById('certCourse').value;
-
-let cert=`
-
-<h3>CoTeSy IT Services</h3>
-
-<h2>Certificate of Completion</h2>
-
-<p>This certificate is awarded to</p>
-
-<h2>${name}</h2>
-
-<p>for completing</p>
-
-<h3>${course}</h3>
-
-`;
-
-document.getElementById('certificatePreview').innerHTML=cert;
+})
 
 }
