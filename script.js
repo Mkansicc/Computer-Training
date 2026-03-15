@@ -1,11 +1,8 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+// Firebase imports for browser + GitHub Pages
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-analytics.js";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyD55TZo8jQg7lI2bnO68yn2z3a9KsOsQWs",
   authDomain: "computer-training-d3147.firebaseapp.com",
@@ -18,75 +15,86 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);let students=[]
+const analytics = getAnalytics(app);
 
-function show(id){
+// Student data
+let students = [];
 
-document.querySelectorAll("section").forEach(s=>{
-s.classList.add("hide")
-})
+// Show section
+function show(id) {
+  document.querySelectorAll("section").forEach((section) => {
+    section.classList.add("hide");
+  });
 
-document.getElementById(id).classList.remove("hide")
-
+  document.getElementById(id).classList.remove("hide");
 }
 
-function register(){
+// Register student
+function register() {
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const pass = document.getElementById("password").value.trim();
+  const course = document.getElementById("course").value;
 
-let name=document.getElementById("name").value
-let email=document.getElementById("email").value
-let pass=document.getElementById("password").value
-let course=document.getElementById("course").value
+  if (!name || !email || !pass) {
+    document.getElementById("regmsg").innerHTML = "Please fill in all fields";
+    return;
+  }
 
-students.push({
-name:name,
-email:email,
-password:pass,
-course:course
-})
+  students.push({
+    name: name,
+    email: email,
+    password: pass,
+    course: course
+  });
 
-document.getElementById("regmsg").innerHTML="Student Registered"
+  document.getElementById("regmsg").innerHTML = "Student Registered";
+  document.getElementById("name").value = "";
+  document.getElementById("email").value = "";
+  document.getElementById("password").value = "";
+  document.getElementById("course").selectedIndex = 0;
 
-updateTable()
-
+  updateTable();
 }
 
-function login(){
+// Login student
+function login() {
+  const email = document.getElementById("logemail").value.trim();
+  const pass = document.getElementById("logpass").value.trim();
 
-let email=document.getElementById("logemail").value
-let pass=document.getElementById("logpass").value
+  const user = students.find(
+    (student) => student.email === email && student.password === pass
+  );
 
-let user=students.find(s=>s.email==email && s.password==pass)
-
-if(user){
-
-document.getElementById("loginmsg").innerHTML="Login Success"
-
-}else{
-
-document.getElementById("loginmsg").innerHTML="Wrong Login"
-
+  if (user) {
+    document.getElementById("loginmsg").innerHTML =
+      "Login Success<br>Name: " + user.name + "<br>Course: " + user.course;
+  } else {
+    document.getElementById("loginmsg").innerHTML = "Wrong Login";
+  }
 }
 
+// Update students table
+function updateTable() {
+  const table = document.getElementById("studentTable");
+  table.innerHTML = "";
+
+  students.forEach((student) => {
+    const row = `
+      <tr>
+        <td>${student.name}</td>
+        <td>${student.email}</td>
+        <td>${student.course}</td>
+      </tr>
+    `;
+    table.innerHTML += row;
+  });
 }
 
-function updateTable(){
+// Show home first
+show("home");
 
-let table=document.getElementById("studentTable")
-
-table.innerHTML=""
-
-students.forEach(s=>{
-
-let row=`
-<tr>
-<td>${s.name}</td>
-<td>${s.email}</td>
-<td>${s.course}</td>
-</tr>
-`
-
-table.innerHTML+=row
-
-})
-
-}
+// Make functions available to buttons in HTML
+window.show = show;
+window.register = register;
+window.login = login;
