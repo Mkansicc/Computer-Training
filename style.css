@@ -1,7 +1,7 @@
 body{
 font-family:Arial;
 margin:0;
-background:#f4f7fb;
+background:#f4f4f4;
 }
 
 header{
@@ -12,55 +12,49 @@ text-align:center;
 }
 
 nav{
-background:#1f5fd1;
+background:#1a4fb0;
 padding:10px;
 text-align:center;
 }
 
 nav button{
 margin:5px;
-padding:10px 15px;
+padding:10px;
 border:none;
 background:white;
 cursor:pointer;
-border-radius:5px;
 }
 
-.page{
-display:none;
-padding:30px;
-}
-
-.cards{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:20px;
-}
-
-.card{
-background:white;
+section{
 padding:20px;
-border-radius:10px;
-box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
 
-form input,form select{
+input,select{
 display:block;
 margin:10px 0;
 padding:10px;
-width:100%;
+width:300px;
 }
 
 button{
-padding:10px 20px;
+padding:10px;
 background:#0f3d91;
 color:white;
 border:none;
 }
 
-#certificatePreview{
-margin-top:30px;
-padding:20px;
-border:2px solid #0f3d91;
+table{
+border-collapse:collapse;
+width:100%;
 background:white;
+}
+
+th,td{
+border:1px solid #ccc;
+padding:10px;
+text-align:left;
+}
+
+.hide{
+display:none;
 }
