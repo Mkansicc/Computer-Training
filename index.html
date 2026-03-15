@@ -1,172 +1,1024 @@
+# CoTeSy Online Database Version (Firebase)
+
+Use these **3 files** for a true online version that syncs across devices:
+
+```text
+index.html
+style.css
+script.js
+```
+
+This version uses:
+- **Firebase Authentication** for student/admin login
+- **Cloud Firestore** for online student database
+- shared data across phones and computers
+- online attendance records
+- online exam results
+- certificate preview and PDF download
+
+Before using the code:
+1. Create a Firebase project
+2. Enable **Authentication > Email/Password**
+3. Enable **Cloud Firestore**
+4. Replace the Firebase config placeholders in `script.js`
+5. Deploy to GitHub Pages
+
+---
+
+# 1) index.html
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>CoTeSy IT Services Training</title>
-
-<link rel="stylesheet" href="style.css">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoTeSy IT Services | Online Training Academy</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
+  <header class="hero">
+    <div class="container hero-inner">
+      <div class="brand">
+        <div class="brand-logo">C</div>
+        <div>
+          <h1>CoTeSy IT Services</h1>
+          <p>Online Computer Training Academy</p>
+        </div>
+      </div>
 
-<header>
+      <div class="hero-copy">
+        <span class="pill">Cloud Database Version</span>
+        <h2>Students can log in from any phone or computer and see the same data.</h2>
+        <p>Powered by Firebase Authentication and Firestore for real online training management.</p>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span>Students</span>
+            <strong id="statStudents">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Certificates Ready</span>
+            <strong id="statCertificates">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Attendance Records</span>
+            <strong id="statAttendance">0</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
 
-<h1>CoTeSy IT Services</h1>
-<p>Online Computer Training Academy</p>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <button class="nav-btn active" data-section="home">Home</button>
+      <button class="nav-btn" data-section="courses">Courses</button>
+      <button class="nav-btn" data-section="register">Register</button>
+      <button class="nav-btn" data-section="login">Login</button>
+      <button class="nav-btn" data-section="portal">Portal</button>
+      <button class="nav-btn" data-section="exams">Exams</button>
+      <button class="nav-btn" data-section="attendance">Attendance</button>
+      <button class="nav-btn" data-section="certificates">Certificates</button>
+      <button class="nav-btn" data-section="admin">Admin</button>
+    </div>
+  </nav>
 
-</header>
+  <main class="container main-content">
+    <section id="home" class="page active">
+      <div class="grid-3 metrics-row">
+        <article class="metric-box">
+          <span>Total Students</span>
+          <h3 id="metricStudents">0</h3>
+          <p>Live database from Firestore</p>
+        </article>
+        <article class="metric-box">
+          <span>Average Exam Score</span>
+          <h3 id="metricAvgScore">0%</h3>
+          <p>Synced across devices</p>
+        </article>
+        <article class="metric-box">
+          <span>Logged-in User</span>
+          <h3 id="metricUser">Guest</h3>
+          <p>Student or admin account</p>
+        </article>
+      </div>
 
-<nav>
+      <div class="card intro-card">
+        <h3>Welcome to CoTeSy Computer Training</h3>
+        <p>
+          This Firebase version gives CoTeSy a real online shared database. Students can register,
+          log in, write exams, track attendance, and access certificates from any device.
+        </p>
+      </div>
+    </section>
 
-<button onclick="showSection('home')">Home</button>
-<button onclick="showSection('courses')">Courses</button>
-<button onclick="showSection('register')">Register</button>
-<button onclick="showSection('login')">Student Login</button>
-<button onclick="showSection('admin')">Admin</button>
-<button onclick="showSection('certificate')">Certificates</button>
+    <section id="courses" class="page">
+      <h2 class="section-title">Available Courses</h2>
+      <div class="grid-4" id="courseGrid"></div>
+    </section>
 
-</nav>
+    <section id="register" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title">Create Student Account</h2>
+          <form id="registerForm" class="form-grid">
+            <input type="text" id="regName" placeholder="Full Name and Surname" required />
+            <input type="text" id="regIdNumber" placeholder="SA ID Number" required />
+            <input type="email" id="regEmail" placeholder="Email Address" required />
+            <input type="text" id="regPhone" placeholder="Phone Number" required />
+            <input type="password" id="regPassword" placeholder="Create Password" required />
+            <select id="regCourse" required>
+              <option value="Computer Basics">Computer Basics</option>
+              <option value="Microsoft Word">Microsoft Word</option>
+              <option value="Microsoft Excel">Microsoft Excel</option>
+              <option value="PowerPoint">PowerPoint</option>
+            </select>
+            <textarea id="regAddress" placeholder="Address"></textarea>
+            <button type="submit" class="btn primary">Register Student</button>
+          </form>
+          <div id="registerMessage" class="message"></div>
+        </div>
 
-<section id="home" class="page">
+        <div class="card">
+          <h2 class="section-title">WhatsApp Registration Alert</h2>
+          <p>A WhatsApp link will be generated after a student registers.</p>
+          <div class="notice-box">
+            <p><strong>Tip:</strong> Put your CoTeSy WhatsApp number in `script.js`.</p>
+          </div>
+          <a id="whatsappLink" class="btn outline hidden" target="_blank">Send WhatsApp Registration Alert</a>
+        </div>
+      </div>
 
-<h2>Welcome to CoTeSy Computer Training</h2>
+      <div class="card mt-24">
+        <h3>Registered Students</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Course</th>
+                <th>Score</th>
+                <th>Attendance</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-<p>Professional computer training in Word, Excel, PowerPoint and Basic Computing.</p>
+    <section id="login" class="page">
+      <div class="grid-2">
+        <div class="card narrow-card">
+          <h2 class="section-title">Student / Admin Login</h2>
+          <div class="form-grid">
+            <input type="email" id="loginEmail" placeholder="Email Address" />
+            <input type="password" id="loginPassword" placeholder="Password" />
+            <button id="loginBtn" class="btn primary">Login</button>
+          </div>
+          <div id="loginMessage" class="message"></div>
+        </div>
 
-<div class="cards">
+        <div class="card narrow-card">
+          <h2 class="section-title">Session</h2>
+          <p id="sessionInfo">No user logged in.</p>
+          <button id="logoutBtn" class="btn outline mt-16">Logout</button>
+        </div>
+      </div>
+    </section>
 
-<div class="card">
-<h3>Students</h3>
-<p id="studentCount">0</p>
-</div>
+    <section id="portal" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title">Student Dashboard</h2>
+          <div id="portalEmpty" class="notice-box">No student logged in yet.</div>
+          <div id="portalContent" class="hidden">
+            <div class="profile-box">
+              <div class="avatar" id="portalAvatar">S</div>
+              <div>
+                <h3 id="portalName">Student Name</h3>
+                <p id="portalCourse">Course</p>
+                <p id="portalEmail">Email</p>
+              </div>
+            </div>
+            <div class="grid-2 mini-cards">
+              <div class="mini-card"><span>Exam Score</span><strong id="portalScore">0%</strong></div>
+              <div class="mini-card"><span>Attendance</span><strong id="portalAttendance">0%</strong></div>
+              <div class="mini-card"><span>Certificate</span><strong id="portalCertificate">Pending</strong></div>
+              <div class="mini-card"><span>Student ID</span><strong id="portalStudentId">CTS-001</strong></div>
+            </div>
+          </div>
+        </div>
 
-<div class="card">
-<h3>Courses</h3>
-<p>4</p>
-</div>
+        <div class="card">
+          <h2 class="section-title">Quick Actions</h2>
+          <div class="action-list">
+            <button class="btn outline" data-go="exams">Go to Exams</button>
+            <button class="btn outline" data-go="certificates">View Certificate</button>
+            <button class="btn outline" data-go="attendance">View Attendance</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<div class="card">
-<h3>Certificates Issued</h3>
-<p id="certCount">0</p>
-</div>
+    <section id="exams" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title">Online Exams</h2>
+          <select id="examSelect"></select>
+          <div class="notice-box mt-16">
+            <p><strong>Course:</strong> <span id="examCourse"></span></p>
+            <p><strong>Pass Mark:</strong> <span id="examPassMark"></span></p>
+          </div>
+        </div>
 
-</div>
+        <div class="card">
+          <h2 class="section-title" id="examTitle">Exam</h2>
+          <div id="examQuestions"></div>
+          <button id="submitExamBtn" class="btn primary mt-16">Submit Exam</button>
+          <div id="examMessage" class="message"></div>
+        </div>
+      </div>
+    </section>
 
-</section>
+    <section id="attendance" class="page">
+      <div class="card">
+        <h2 class="section-title">Attendance Tracking</h2>
+        <div id="attendanceActions" class="grid-3"></div>
+      </div>
 
-<section id="courses" class="page">
+      <div class="card mt-24">
+        <h3>Attendance Records</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Student</th>
+                <th>Course</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="attendanceTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-<h2>Available Courses</h2>
+    <section id="certificates" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title">Certificate Setup</h2>
+          <input type="text" id="brandName" value="CoTeSy IT Services" placeholder="Brand Name" />
+          <input type="text" id="directorName" value="CoTeSy Director / Trainer" placeholder="Director Name" class="mt-12" />
+          <button id="useLoggedStudentBtn" class="btn primary mt-16">Use Logged-in Student</button>
+          <div class="student-select-list" id="certificateStudentList"></div>
+        </div>
 
-<div class="cards">
+        <div>
+          <div id="certificateArea" class="certificate-box">
+            <div class="certificate-inner">
+              <div class="cert-badge">★</div>
+              <p class="cert-brand" id="certBrand">CoTeSy IT Services</p>
+              <h2>Certificate of Completion</h2>
+              <p>This certificate is proudly awarded to</p>
+              <h3 id="certStudentName">Student Name</h3>
+              <p>for successfully completing</p>
+              <h4 id="certCourse">Course Name</h4>
+              <div class="cert-meta">
+                <div><span>Student ID</span><strong id="certStudentId">CTS-001</strong></div>
+                <div><span>Score</span><strong id="certScore">0%</strong></div>
+                <div><span>Date</span><strong id="certDate"></strong></div>
+              </div>
+              <div class="cert-signatures">
+                <div>
+                  <span>Training Provider</span>
+                  <div class="sig-line"></div>
+                  <strong id="certBrandFooter">CoTeSy IT Services</strong>
+                </div>
+                <div>
+                  <span>Authorized Signature</span>
+                  <div class="sig-line"></div>
+                  <strong id="certDirector">CoTeSy Director / Trainer</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+          <button id="downloadPdfBtn" class="btn primary mt-16">Download / Save as PDF</button>
+        </div>
+      </div>
+    </section>
 
-<div class="card">
-<h3>Computer Basics</h3>
-<p>Introduction to computers and Windows</p>
-</div>
+    <section id="admin" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title">Admin Dashboard</h2>
+          <div class="grid-3 mini-cards">
+            <div class="mini-card"><span>Students</span><strong id="adminStudents">0</strong></div>
+            <div class="mini-card"><span>Attendance Records</span><strong id="adminAttendance">0</strong></div>
+            <div class="mini-card"><span>Certificates Ready</span><strong id="adminReady">0</strong></div>
+          </div>
+        </div>
 
-<div class="card">
-<h3>Microsoft Word</h3>
-<p>Create letters, CVs and documents</p>
-</div>
+        <div class="card">
+          <h2 class="section-title">Admin Records</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Course</th>
+                  <th>Score</th>
+                  <th>Attendance</th>
+                </tr>
+              </thead>
+              <tbody id="adminTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-<div class="card">
-<h3>Microsoft Excel</h3>
-<p>Spreadsheets and calculations</p>
-</div>
-
-<div class="card">
-<h3>PowerPoint</h3>
-<p>Create professional presentations</p>
-</div>
-
-</div>
-
-</section>
-
-<section id="register" class="page">
-
-<h2>Student Registration</h2>
-
-<form id="registerForm">
-
-<input type="text" id="name" placeholder="Full Name" required>
-
-<input type="text" id="idnumber" placeholder="SA ID Number" required>
-
-<input type="email" id="email" placeholder="Email" required>
-
-<input type="text" id="phone" placeholder="Phone" required>
-
-<select id="course">
-
-<option>Computer Basics</option>
-<option>Microsoft Word</option>
-<option>Microsoft Excel</option>
-<option>PowerPoint</option>
-
-</select>
-
-<button type="submit">Register Student</button>
-
-</form>
-
-<ul id="studentList"></ul>
-
-</section>
-
-<section id="login" class="page">
-
-<h2>Student Login</h2>
-
-<input type="email" id="loginEmail" placeholder="Email">
-
-<button onclick="studentLogin()">Login</button>
-
-<div id="studentDashboard"></div>
-
-</section>
-
-<section id="admin" class="page">
-
-<h2>Admin Login</h2>
-
-<input type="text" id="adminUser" placeholder="Username">
-
-<input type="password" id="adminPass" placeholder="Password">
-
-<button onclick="adminLogin()">Login</button>
-
-<div id="adminPanel"></div>
-
-</section>
-
-<section id="certificate" class="page">
-
-<h2>Certificate Generator</h2>
-
-<input type="text" id="certName" placeholder="Student Name">
-
-<select id="certCourse">
-
-<option>Computer Basics</option>
-<option>Microsoft Word</option>
-<option>Microsoft Excel</option>
-<option>PowerPoint</option>
-
-</select>
-
-<button onclick="generateCertificate()">Generate Certificate</button>
-
-<div id="certificatePreview"></div>
-
-</section>
-
-<script src="script.js"></script>
-
+  <script type="module" src="script.js"></script>
 </body>
 </html>
+```
+
+---
+
+# 2) style.css
+
+```css
+:root {
+  --primary: #0f3d91;
+  --primary-dark: #0b2d6a;
+  --secondary: #1aa7ff;
+  --bg: #f4f8fc;
+  --white: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #d9e2ef;
+  --success: #15803d;
+  --warning: #b45309;
+  --danger: #dc2626;
+  --shadow: 0 14px 34px rgba(15, 61, 145, 0.1);
+  --radius: 22px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+.container { width: min(1180px, 92%); margin: 0 auto; }
+.hero {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary), var(--secondary));
+  color: var(--white);
+  padding: 36px 0 44px;
+}
+.hero-inner {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 24px;
+  align-items: center;
+}
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand-logo {
+  width: 64px; height: 64px; border-radius: 20px; background: rgba(255,255,255,0.14);
+  display: grid; place-items: center; font-size: 28px; font-weight: 800; border: 1px solid rgba(255,255,255,0.2);
+}
+.brand h1, .brand p, .hero-copy h2, .hero-copy p { margin: 0; }
+.hero-copy h2 { font-size: clamp(2rem, 4vw, 3.6rem); line-height: 1.08; margin: 12px 0; }
+.hero-copy p { max-width: 760px; opacity: 0.95; }
+.pill {
+  display: inline-block; padding: 8px 14px; border-radius: 999px; background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.18); font-size: 0.9rem;
+}
+.hero-stats, .grid-2, .grid-3, .grid-4, .cert-meta, .cert-signatures {
+  display: grid; gap: 18px;
+}
+.hero-stats { grid-template-columns: repeat(3, 1fr); margin-top: 22px; }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.stat-card {
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: var(--radius); padding: 16px;
+}
+.stat-card span { display: block; font-size: 0.9rem; }
+.stat-card strong { display: block; font-size: 1.8rem; margin-top: 6px; }
+.nav {
+  background: var(--white); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10;
+}
+.nav-inner { display: flex; gap: 10px; flex-wrap: wrap; padding: 14px 0; }
+.nav-btn {
+  border: 1px solid var(--border); background: var(--white); border-radius: 14px;
+  padding: 10px 14px; cursor: pointer; font-weight: 700;
+}
+.nav-btn.active { background: var(--primary); color: var(--white); border-color: var(--primary); }
+.main-content { padding: 28px 0 56px; }
+.page { display: none; }
+.page.active { display: block; }
+.card, .metric-box, .certificate-box {
+  background: var(--white); border-radius: 28px; box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.5);
+}
+.card, .metric-box { padding: 24px; }
+.metrics-row { margin-bottom: 24px; }
+.metric-box span, .mini-card span, .notice-box, .text-muted, .cert-meta span, .cert-signatures span { color: var(--muted); }
+.metric-box h3 { font-size: 2rem; margin: 8px 0 4px; color: var(--primary-dark); }
+.section-title { margin-top: 0; margin-bottom: 16px; }
+.form-grid { display: grid; gap: 12px; }
+input, select, textarea, button { font: inherit; }
+input, select, textarea {
+  width: 100%; border: 1px solid var(--border); border-radius: 16px; padding: 13px 14px; background: var(--white); outline: none;
+}
+textarea { min-height: 96px; resize: vertical; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 16px;
+  padding: 12px 16px; border: none; cursor: pointer; font-weight: 700; text-decoration: none;
+}
+.btn.primary { background: var(--primary); color: var(--white); }
+.btn.outline { background: transparent; color: var(--primary); border: 1px solid var(--primary); }
+.notice-box { background: #f8fbff; border: 1px solid var(--border); border-radius: 18px; padding: 14px; }
+.message { margin-top: 12px; min-height: 24px; }
+.message.success { color: var(--success); }
+.message.error { color: var(--danger); }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #edf2f7; }
+th { color: var(--muted); font-size: 0.9rem; }
+.profile-box { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+.avatar {
+  width: 72px; height: 72px; border-radius: 22px; background: #e8f1ff; color: var(--primary);
+  display: grid; place-items: center; font-size: 28px; font-weight: 800;
+}
+.mini-cards { margin-top: 12px; }
+.mini-card { background: #f8fbff; border: 1px solid var(--border); border-radius: 18px; padding: 14px; }
+.mini-card strong { display: block; margin-top: 6px; font-size: 1.2rem; }
+.action-list { display: grid; gap: 12px; }
+.student-action-card {
+  background: #f8fbff; border: 1px solid var(--border); border-radius: 20px; padding: 14px;
+}
+.badge {
+  display: inline-block; padding: 6px 10px; border-radius: 999px; color: var(--white); font-size: 0.82rem; font-weight: 700;
+}
+.badge.present, .badge.ready { background: var(--success); }
+.badge.absent, .badge.error { background: var(--danger); }
+.badge.pending { background: var(--warning); }
+.student-select-list { display: grid; gap: 10px; margin-top: 16px; }
+.student-select-item {
+  display: flex; justify-content: space-between; gap: 12px; align-items: center; border: 1px solid var(--border);
+  border-radius: 18px; padding: 12px; background: #fbfdff;
+}
+.certificate-box { padding: 24px; background: linear-gradient(135deg, #ffffff, #eef6ff); }
+.certificate-inner {
+  border: 3px dashed rgba(15, 61, 145, 0.24); border-radius: 24px; padding: 28px; text-align: center;
+}
+.cert-badge {
+  width: 80px; height: 80px; margin: 0 auto 14px; border-radius: 24px; background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--white); display: grid; place-items: center; font-size: 2rem; font-weight: 800;
+}
+.cert-brand {
+  letter-spacing: 0.28em; text-transform: uppercase; font-size: 0.78rem; color: var(--primary); font-weight: 700;
+}
+.certificate-inner h2, .certificate-inner h3, .certificate-inner h4 { margin: 10px 0; }
+.certificate-inner h3 { font-size: 2rem; color: var(--primary); }
+.cert-meta { grid-template-columns: repeat(3, 1fr); margin-top: 20px; }
+.cert-meta div {
+  background: var(--white); border: 1px solid var(--border); border-radius: 18px; padding: 14px;
+}
+.cert-meta strong, .cert-signatures strong { display: block; margin-top: 6px; }
+.cert-signatures { grid-template-columns: repeat(2, 1fr); margin-top: 24px; text-align: left; }
+.sig-line { height: 1px; background: #bfd0e8; margin: 12px 0; }
+.hidden { display: none !important; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-24 { margin-top: 24px; }
+@media (max-width: 1000px) {
+  .hero-inner, .grid-4, .grid-3, .grid-2, .hero-stats, .cert-meta, .cert-signatures { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 700px) {
+  .hero-inner, .grid-4, .grid-3, .grid-2, .hero-stats, .cert-meta, .cert-signatures { grid-template-columns: 1fr; }
+  .nav-inner { overflow-x: auto; flex-wrap: nowrap; padding-bottom: 10px; }
+}
+@media print {
+  body * { visibility: hidden; }
+  #certificateArea, #certificateArea * { visibility: visible; }
+  #certificateArea { position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; border: none; }
+}
+```
+
+---
+
+# 3) script.js
+
+```javascript
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  collection,
+  addDoc,
+  updateDoc,
+  query,
+  orderBy,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const COURSES = [
+  { name: "Computer Basics", description: "Introduction to computers and Windows.", fee: "R450" },
+  { name: "Microsoft Word", description: "Create letters, CVs, and documents.", fee: "R500" },
+  { name: "Microsoft Excel", description: "Spreadsheets, formulas, and calculations.", fee: "R550" },
+  { name: "PowerPoint", description: "Create beautiful presentations.", fee: "R450" }
+];
+
+const EXAMS = [
+  {
+    id: 1,
+    title: "Computer Basics Test",
+    course: "Computer Basics",
+    passMark: 50,
+    questions: [
+      { q: "Which device is used to move the pointer?", options: ["Monitor", "Mouse", "Printer", "Speaker"], answer: "Mouse" },
+      { q: "Which part is used to type letters?", options: ["Keyboard", "Router", "Screen", "Cable"], answer: "Keyboard" }
+    ]
+  },
+  {
+    id: 2,
+    title: "Microsoft Word Test",
+    course: "Microsoft Word",
+    passMark: 50,
+    questions: [
+      { q: "Which program is used to type letters?", options: ["Word", "Excel", "Paint", "Chrome"], answer: "Word" },
+      { q: "Which shortcut saves a document?", options: ["Ctrl + S", "Ctrl + P", "Ctrl + X", "Ctrl + D"], answer: "Ctrl + S" }
+    ]
+  },
+  {
+    id: 3,
+    title: "Microsoft Excel Test",
+    course: "Microsoft Excel",
+    passMark: 50,
+    questions: [
+      { q: "Excel is mainly used for?", options: ["Spreadsheets", "Music", "Drawing", "Video calls"], answer: "Spreadsheets" },
+      { q: "Which symbol starts a formula in Excel?", options: ["=", "+", "#", "@"], answer: "=" }
+    ]
+  },
+  {
+    id: 4,
+    title: "PowerPoint Test",
+    course: "PowerPoint",
+    passMark: 50,
+    questions: [
+      { q: "PowerPoint is used to create?", options: ["Presentations", "Passwords", "Antivirus", "Emails"], answer: "Presentations" },
+      { q: "A PowerPoint page is called?", options: ["Slide", "Sheet", "Tab", "Form"], answer: "Slide" }
+    ]
+  }
+];
+
+const WHATSAPP_NUMBER = "27720654503";
+let students = [];
+let attendanceRecords = [];
+let currentStudent = null;
+let currentUser = null;
+
+const $ = (id) => document.getElementById(id);
+const navButtons = document.querySelectorAll(".nav-btn");
+const pages = document.querySelectorAll(".page");
+
+function switchSection(id) {
+  pages.forEach((page) => page.classList.toggle("active", page.id === id));
+  navButtons.forEach((btn) => btn.classList.toggle("active", btn.dataset.section === id));
+}
+
+navButtons.forEach((btn) => btn.addEventListener("click", () => switchSection(btn.dataset.section)));
+document.querySelectorAll("[data-go]").forEach((btn) => btn.addEventListener("click", () => switchSection(btn.dataset.go)));
+
+function averageScore() {
+  if (!students.length) return 0;
+  return Math.round(students.reduce((sum, s) => sum + (Number(s.examScore) || 0), 0) / students.length);
+}
+
+function certificateReadyCount() {
+  return students.filter((s) => s.certificateReady).length;
+}
+
+function renderTopMetrics() {
+  $("statStudents").textContent = students.length;
+  $("statCertificates").textContent = certificateReadyCount();
+  $("statAttendance").textContent = attendanceRecords.length;
+  $("metricStudents").textContent = students.length;
+  $("metricAvgScore").textContent = `${averageScore()}%`;
+  $("metricUser").textContent = currentUser?.email || "Guest";
+}
+
+function renderCourses() {
+  $("courseGrid").innerHTML = COURSES.map(course => `
+    <article class="card">
+      <h3>${course.name}</h3>
+      <p>${course.description}</p>
+      <div class="notice-box mt-16">Fee: <strong>${course.fee}</strong></div>
+    </article>
+  `).join("");
+}
+
+function renderStudentTable() {
+  $("studentTableBody").innerHTML = students.map(student => `
+    <tr>
+      <td>${student.id}</td>
+      <td>${student.fullName}</td>
+      <td>${student.email}</td>
+      <td>${student.course}</td>
+      <td>${student.examScore || 0}%</td>
+      <td>${student.attendance || 0}%</td>
+    </tr>
+  `).join("");
+}
+
+function renderPortal() {
+  if (!currentStudent) {
+    $("portalEmpty").classList.remove("hidden");
+    $("portalContent").classList.add("hidden");
+    return;
+  }
+  $("portalEmpty").classList.add("hidden");
+  $("portalContent").classList.remove("hidden");
+  $("portalAvatar").textContent = currentStudent.fullName.charAt(0).toUpperCase();
+  $("portalName").textContent = currentStudent.fullName;
+  $("portalCourse").textContent = currentStudent.course;
+  $("portalEmail").textContent = currentStudent.email;
+  $("portalScore").textContent = `${currentStudent.examScore || 0}%`;
+  $("portalAttendance").textContent = `${currentStudent.attendance || 0}%`;
+  $("portalCertificate").textContent = currentStudent.certificateReady ? "Ready" : "Pending";
+  $("portalStudentId").textContent = currentStudent.id;
+}
+
+function renderExamSelect() {
+  $("examSelect").innerHTML = EXAMS.map(exam => `<option value="${exam.id}">${exam.title}</option>`).join("");
+  renderExamQuestions();
+}
+
+function renderExamQuestions() {
+  const exam = EXAMS.find(item => item.id === Number($("examSelect").value || 1));
+  $("examTitle").textContent = exam.title;
+  $("examCourse").textContent = exam.course;
+  $("examPassMark").textContent = `${exam.passMark}%`;
+  $("examQuestions").innerHTML = exam.questions.map((question, index) => `
+    <div class="notice-box mt-16">
+      <p><strong>${index + 1}. ${question.q}</strong></p>
+      ${question.options.map(option => `
+        <label class="mt-12" style="display:block;">
+          <input type="radio" name="question_${index}" value="${option}"> ${option}
+        </label>
+      `).join("")}
+    </div>
+  `).join("");
+}
+
+function renderAttendanceActions() {
+  $("attendanceActions").innerHTML = students.map(student => `
+    <div class="student-action-card">
+      <h4>${student.fullName}</h4>
+      <p>${student.course}</p>
+      <div class="action-list mt-12">
+        <button class="btn primary" onclick="markAttendance('${student.id}','Present')">Present</button>
+        <button class="btn outline" onclick="markAttendance('${student.id}','Absent')">Absent</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderAttendanceTable() {
+  $("attendanceTableBody").innerHTML = attendanceRecords.map(record => `
+    <tr>
+      <td>${record.date}</td>
+      <td>${record.name}</td>
+      <td>${record.course}</td>
+      <td><span class="badge ${record.status.toLowerCase()}">${record.status}</span></td>
+    </tr>
+  `).join("");
+}
+
+function renderCertificateList() {
+  $("certificateStudentList").innerHTML = students.map(student => `
+    <div class="student-select-item">
+      <div>
+        <strong>${student.fullName}</strong>
+        <p>${student.course}</p>
+      </div>
+      <button class="btn outline" onclick="useCertificateStudent('${student.id}')">Select</button>
+    </div>
+  `).join("");
+}
+
+function updateCertificate(student) {
+  if (!student) return;
+  const brand = $("brandName").value || "CoTeSy IT Services";
+  const director = $("directorName").value || "CoTeSy Director / Trainer";
+  $("certBrand").textContent = brand;
+  $("certBrandFooter").textContent = brand;
+  $("certDirector").textContent = director;
+  $("certStudentName").textContent = student.fullName;
+  $("certCourse").textContent = student.course;
+  $("certStudentId").textContent = student.id;
+  $("certScore").textContent = `${student.examScore || 0}%`;
+  $("certDate").textContent = new Date().toLocaleDateString();
+}
+
+function renderAdminPanel() {
+  $("adminStudents").textContent = students.length;
+  $("adminAttendance").textContent = attendanceRecords.length;
+  $("adminReady").textContent = certificateReadyCount();
+  $("adminTableBody").innerHTML = students.map(student => `
+    <tr>
+      <td>${student.fullName}</td>
+      <td>${student.email}</td>
+      <td>${student.course}</td>
+      <td>${student.examScore || 0}%</td>
+      <td>${student.attendance || 0}%</td>
+    </tr>
+  `).join("");
+}
+
+async function fetchStudents() {
+  const snapshot = await getDocs(query(collection(db, "students"), orderBy("fullName")));
+  students = snapshot.docs.map(docSnap => ({ uid: docSnap.id, ...docSnap.data() }));
+}
+
+async function fetchAttendance() {
+  const snapshot = await getDocs(query(collection(db, "attendance"), orderBy("createdAt", "desc")));
+  attendanceRecords = snapshot.docs.map(docSnap => {
+    const data = docSnap.data();
+    return {
+      ...data,
+      date: data.date || ""
+    };
+  });
+}
+
+async function refreshAll() {
+  await fetchStudents();
+  await fetchAttendance();
+  if (currentUser) {
+    const currentDoc = await getDoc(doc(db, "students", currentUser.uid));
+    currentStudent = currentDoc.exists() ? { uid: currentDoc.id, ...currentDoc.data() } : null;
+  } else {
+    currentStudent = null;
+  }
+  renderTopMetrics();
+  renderCourses();
+  renderStudentTable();
+  renderPortal();
+  renderExamSelect();
+  renderAttendanceActions();
+  renderAttendanceTable();
+  renderCertificateList();
+  renderAdminPanel();
+  updateCertificate(currentStudent || students[0]);
+  $("sessionInfo").textContent = currentUser ? `Logged in as ${currentUser.email}` : "No user logged in.";
+}
+
+$("registerForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  try {
+    const fullName = $("regName").value.trim();
+    const idNumber = $("regIdNumber").value.trim();
+    const email = $("regEmail").value.trim().toLowerCase();
+    const phone = $("regPhone").value.trim();
+    const password = $("regPassword").value;
+    const course = $("regCourse").value;
+    const address = $("regAddress").value.trim();
+
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = userCredential.user.uid;
+
+    await setDoc(doc(db, "students", uid), {
+      id: `CTS-${String(Date.now()).slice(-6)}`,
+      fullName,
+      idNumber,
+      email,
+      phone,
+      course,
+      address,
+      role: "student",
+      examScore: 0,
+      attendance: 0,
+      certificateReady: false,
+      createdAt: serverTimestamp()
+    });
+
+    $("registerForm").reset();
+    $("registerMessage").textContent = `Registration successful for ${fullName}.`;
+    $("registerMessage").className = "message success";
+
+    const whatsappText = encodeURIComponent(
+      `New CoTeSy registration:%0AName: ${fullName}%0AEmail: ${email}%0ACourse: ${course}%0APhone: ${phone}`
+    );
+    $("whatsappLink").href = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappText}`;
+    $("whatsappLink").classList.remove("hidden");
+
+    await refreshAll();
+  } catch (error) {
+    $("registerMessage").textContent = error.message;
+    $("registerMessage").className = "message error";
+  }
+});
+
+$("loginBtn").addEventListener("click", async () => {
+  try {
+    const email = $("loginEmail").value.trim().toLowerCase();
+    const password = $("loginPassword").value;
+    await signInWithEmailAndPassword(auth, email, password);
+    $("loginMessage").textContent = "Login successful.";
+    $("loginMessage").className = "message success";
+    await refreshAll();
+    switchSection("portal");
+  } catch (error) {
+    $("loginMessage").textContent = error.message;
+    $("loginMessage").className = "message error";
+  }
+});
+
+$("logoutBtn").addEventListener("click", async () => {
+  await signOut(auth);
+});
+
+onAuthStateChanged(auth, async (user) => {
+  currentUser = user;
+  await refreshAll();
+});
+
+$("examSelect").addEventListener("change", renderExamQuestions);
+
+$("submitExamBtn").addEventListener("click", async () => {
+  if (!currentStudent) {
+    $("examMessage").textContent = "Please log in as a student first.";
+    $("examMessage").className = "message error";
+    return;
+  }
+
+  const exam = EXAMS.find(item => item.id === Number($("examSelect").value));
+  if (currentStudent.course !== exam.course) {
+    $("examMessage").textContent = `This exam is for ${exam.course}. Your course is ${currentStudent.course}.`;
+    $("examMessage").className = "message error";
+    return;
+  }
+
+  let correct = 0;
+  exam.questions.forEach((question, index) => {
+    const selected = document.querySelector(`input[name='question_${index}']:checked`);
+    if (selected && selected.value === question.answer) correct += 1;
+  });
+
+  const score = Math.round((correct / exam.questions.length) * 100);
+  const certificateReady = score >= exam.passMark && (currentStudent.attendance || 0) >= 80;
+
+  await updateDoc(doc(db, "students", currentUser.uid), {
+    examScore: score,
+    certificateReady
+  });
+
+  $("examMessage").textContent = `Exam submitted. Score: ${score}%.`;
+  $("examMessage").className = "message success";
+  await refreshAll();
+});
+
+async function markAttendance(studentUid, status) {
+  const student = students.find(item => item.uid === studentUid);
+  if (!student) return;
+
+  await addDoc(collection(db, "attendance"), {
+    studentUid,
+    name: student.fullName,
+    course: student.course,
+    status,
+    date: new Date().toLocaleDateString(),
+    createdAt: serverTimestamp()
+  });
+
+  const studentRecords = attendanceRecords.filter(record => record.name === student.fullName);
+  const totalRecords = studentRecords.length + 1;
+  const currentPresent = studentRecords.filter(record => record.status === "Present").length + (status === "Present" ? 1 : 0);
+  const attendancePercent = Math.round((currentPresent / totalRecords) * 100);
+  const certificateReady = (student.examScore || 0) >= 50 && attendancePercent >= 80;
+
+  await updateDoc(doc(db, "students", studentUid), {
+    attendance: attendancePercent,
+    certificateReady
+  });
+
+  await refreshAll();
+}
+window.markAttendance = markAttendance;
+
+function useCertificateStudent(studentUid) {
+  const student = students.find(item => item.uid === studentUid);
+  updateCertificate(student);
+}
+window.useCertificateStudent = useCertificateStudent;
+
+$("useLoggedStudentBtn").addEventListener("click", () => {
+  updateCertificate(currentStudent || students[0]);
+});
+
+$("brandName").addEventListener("input", () => updateCertificate(currentStudent || students[0]));
+$("directorName").addEventListener("input", () => updateCertificate(currentStudent || students[0]));
+$("downloadPdfBtn").addEventListener("click", () => window.print());
+
+refreshAll();
+switchSection("home");
+```
+
+---
+
+# Firebase setup you must do
+
+## Enable Authentication
+- Open Firebase Console
+- Go to **Authentication**
+- Click **Get started**
+- Enable **Email/Password** sign-in
+
+## Enable Firestore
+- Go to **Firestore Database**
+- Click **Create database**
+- Start in production or test mode
+
+## Firestore structure used by this code
+- `students` collection
+- `attendance` collection
+
+## Replace config in script.js
+Put your real Firebase project keys here:
+
+```javascript
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+```
+
+---
+
+# Firestore rules to start with
+
+```text
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /students/{userId} {
+      allow read, write: if request.auth != null;
+    }
+    match /attendance/{docId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```
+
+---
+
+# GitHub Pages folder
+
+```text
+index.html
+style.css
+script.js
+```
+
+---
+
+# Important note
+
+This is a real shared online version, but it still needs your **Firebase project details** inserted before it will work live. Once you add those keys, students can use the same system from different devices.
