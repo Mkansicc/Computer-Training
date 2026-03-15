@@ -1,0 +1,399 @@
+# CoTeSy Online Training Website (GitHub Pages Version)
+
+Create **3 files** in your GitHub repository:
+
+```
+index.html
+style.css
+script.js
+```
+
+---
+
+# 1️⃣ index.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CoTeSy IT Services Training</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+<h1>CoTeSy IT Services</h1>
+<p>Online Computer Training Academy</p>
+</header>
+
+<nav>
+<button onclick="showSection('home')">Home</button>
+<button onclick="showSection('courses')">Courses</button>
+<button onclick="showSection('register')">Register</button>
+<button onclick="showSection('login')">Student Login</button>
+<button onclick="showSection('admin')">Admin</button>
+<button onclick="showSection('certificate')">Certificates</button>
+</nav>
+
+<section id="home" class="page">
+<h2>Welcome to CoTeSy Computer Training</h2>
+<p>Professional computer training in Word, Excel, PowerPoint and Basic Computing.</p>
+
+<div class="cards">
+<div class="card">
+<h3>Students</h3>
+<p id="studentCount">0</p>
+</div>
+
+<div class="card">
+<h3>Courses</h3>
+<p>4</p>
+</div>
+
+<div class="card">
+<h3>Certificates Issued</h3>
+<p id="certCount">0</p>
+</div>
+</div>
+
+</section>
+
+<section id="courses" class="page">
+<h2>Available Courses</h2>
+
+<div class="cards">
+
+<div class="card">
+<h3>Computer Basics</h3>
+<p>Introduction to computers and Windows</p>
+</div>
+
+<div class="card">
+<h3>Microsoft Word</h3>
+<p>Create letters, CVs and documents</p>
+</div>
+
+<div class="card">
+<h3>Microsoft Excel</h3>
+<p>Spreadsheets and calculations</p>
+</div>
+
+<div class="card">
+<h3>PowerPoint</h3>
+<p>Create professional presentations</p>
+</div>
+
+</div>
+
+</section>
+
+<section id="register" class="page">
+<h2>Student Registration</h2>
+
+<form id="registerForm">
+<input type="text" id="name" placeholder="Full Name" required>
+<input type="text" id="idnumber" placeholder="SA ID Number" required>
+<input type="email" id="email" placeholder="Email" required>
+<input type="text" id="phone" placeholder="Phone" required>
+
+<select id="course">
+<option>Computer Basics</option>
+<option>Microsoft Word</option>
+<option>Microsoft Excel</option>
+<option>PowerPoint</option>
+</select>
+
+<button type="submit">Register Student</button>
+</form>
+
+<ul id="studentList"></ul>
+
+</section>
+
+<section id="login" class="page">
+<h2>Student Login</h2>
+
+<input type="email" id="loginEmail" placeholder="Email">
+<button onclick="studentLogin()">Login</button>
+
+<div id="studentDashboard"></div>
+
+</section>
+
+<section id="admin" class="page">
+<h2>Admin Login</h2>
+
+<input type="text" id="adminUser" placeholder="Username">
+<input type="password" id="adminPass" placeholder="Password">
+
+<button onclick="adminLogin()">Login</button>
+
+<div id="adminPanel"></div>
+
+</section>
+
+<section id="certificate" class="page">
+<h2>Certificate Generator</h2>
+
+<input type="text" id="certName" placeholder="Student Name">
+
+<select id="certCourse">
+<option>Computer Basics</option>
+<option>Microsoft Word</option>
+<option>Microsoft Excel</option>
+<option>PowerPoint</option>
+</select>
+
+<button onclick="generateCertificate()">Generate Certificate</button>
+
+<div id="certificatePreview"></div>
+
+</section>
+
+<script src="script.js"></script>
+
+</body>
+</html>
+```
+
+---
+
+# 2️⃣ style.css
+
+```css
+body{
+font-family:Arial;
+margin:0;
+background:#f4f7fb;
+}
+
+header{
+background:#0f3d91;
+color:white;
+padding:20px;
+text-align:center;
+}
+
+nav{
+background:#1f5fd1;
+padding:10px;
+text-align:center;
+}
+
+nav button{
+margin:5px;
+padding:10px 15px;
+border:none;
+background:white;
+cursor:pointer;
+border-radius:5px;
+}
+
+.page{
+display:none;
+padding:30px;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+form input,form select{
+display:block;
+margin:10px 0;
+padding:10px;
+width:100%;
+}
+
+button{
+padding:10px 20px;
+background:#0f3d91;
+color:white;
+border:none;
+}
+
+#certificatePreview{
+margin-top:30px;
+padding:20px;
+border:2px solid #0f3d91;
+background:white;
+}
+```
+
+---
+
+# 3️⃣ script.js
+
+```javascript
+
+let students=[];
+
+function showSection(id){
+
+let pages=document.querySelectorAll('.page');
+
+pages.forEach(p=>p.style.display='none');
+
+document.getElementById(id).style.display='block';
+
+}
+
+showSection('home');
+
+// registration
+
+document.getElementById('registerForm').addEventListener('submit',function(e){
+
+e.preventDefault();
+
+let name=document.getElementById('name').value;
+let email=document.getElementById('email').value;
+let course=document.getElementById('course').value;
+
+students.push({name,email,course});
+
+updateStudents();
+
+this.reset();
+
+});
+
+function updateStudents(){
+
+let list=document.getElementById('studentList');
+
+list.innerHTML='';
+
+students.forEach(s=>{
+
+let li=document.createElement('li');
+
+li.innerText=s.name+" - "+s.course;
+
+list.appendChild(li);
+
+});
+
+document.getElementById('studentCount').innerText=students.length;
+
+}
+
+// student login
+
+function studentLogin(){
+
+let email=document.getElementById('loginEmail').value;
+
+let student=students.find(s=>s.email===email);
+
+if(student){
+
+document.getElementById('studentDashboard').innerHTML=
+
+"Welcome "+student.name+"<br>Course: "+student.course;
+
+}else{
+
+alert("Student not found");
+
+}
+
+}
+
+// admin login
+
+function adminLogin(){
+
+let user=document.getElementById('adminUser').value;
+
+let pass=document.getElementById('adminPass').value;
+
+if(user=="admin" && pass=="1234"){
+
+document.getElementById('adminPanel').innerHTML=
+
+"Admin Logged In<br>Total Students: "+students.length;
+
+}else{
+
+alert("Wrong login");
+
+}
+
+}
+
+// certificate
+
+function generateCertificate(){
+
+let name=document.getElementById('certName').value;
+
+let course=document.getElementById('certCourse').value;
+
+let cert=`
+
+<h3>CoTeSy IT Services</h3>
+
+<h2>Certificate of Completion</h2>
+
+<p>This certificate is awarded to</p>
+
+<h2>${name}</h2>
+
+<p>for completing</p>
+
+<h3>${course}</h3>
+
+`;
+
+document.getElementById('certificatePreview').innerHTML=cert;
+
+}
+
+```
+
+---
+
+# 4️⃣ Upload to GitHub Pages
+
+Upload these files to your GitHub repository:
+
+```
+index.html
+style.css
+script.js
+```
+
+Then enable **GitHub Pages** and your training website will be live.
+
+Example:
+
+```
+https://yourusername.github.io/cotesy-training
+```
+
+---
+
+If you want, I can also upgrade this into a **VERY powerful CoTeSy system with:**
+
+• student database  
+• login accounts  
+• online exams with marks  
+• automatic certificates  
+• WhatsApp notifications  
+• admin dashboard  
+• training progress tracking
+
+This would make **CoTeSy look like a real online computer academy platform.**
