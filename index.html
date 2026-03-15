@@ -1,105 +1,333 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-<meta charset="UTF-8">
-<title>CoTeSy Computer Training</title>
-
-<link rel="stylesheet" href="style.css">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoTeSy IT Services | Online Training Academy</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
+  <header class="hero">
+    <div class="container hero-inner">
+      <div class="brand">
+        <div class="brand-logo">C</div>
+        <div>
+          <h1>CoTeSy IT Services</h1>
+          <p>Online Computer Training Academy</p>
+        </div>
+      </div>
 
-<header>
+      <div class="hero-copy">
+        <span class="pill">Professional Online Training</span>
+        <h2>Train students online with registration, exams, attendance, certificates, and admin tools.</h2>
+        <p>Connected to Firebase so students can register and log in from different devices.</p>
 
-<h1>CoTeSy IT Services</h1>
-<p>Online Computer Training</p>
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span>Students</span>
+            <strong id="statStudents">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Certificates Ready</span>
+            <strong id="statCertificates">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Attendance Records</span>
+            <strong id="statAttendance">0</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
 
-</header>
+  <nav class="nav">
+    <div class="container nav-inner">
+      <button class="nav-btn active" data-section="home">Home</button>
+      <button class="nav-btn" data-section="courses">Courses</button>
+      <button class="nav-btn" data-section="register">Register</button>
+      <button class="nav-btn" data-section="login">Login</button>
+      <button class="nav-btn" data-section="portal">Student Portal</button>
+      <button class="nav-btn" data-section="exams">Exams</button>
+      <button class="nav-btn" data-section="attendance">Attendance</button>
+      <button class="nav-btn" data-section="certificates">Certificates</button>
+      <button class="nav-btn" data-section="admin">Admin</button>
+    </div>
+  </nav>
 
+  <main class="container main-content">
+    <section id="home" class="page active">
+      <div class="grid-3 metrics-row">
+        <article class="metric-box">
+          <span>Total Students</span>
+          <h3 id="metricStudents">0</h3>
+          <p>Saved in Firebase Firestore</p>
+        </article>
 
-<nav>
+        <article class="metric-box">
+          <span>Average Exam Score</span>
+          <h3 id="metricAvgScore">0%</h3>
+          <p>Updated automatically</p>
+        </article>
 
-<button onclick="show('home')">Home</button>
-<button onclick="show('register')">Register</button>
-<button onclick="show('login')">Login</button>
-<button onclick="show('students')">Students</button>
+        <article class="metric-box">
+          <span>Logged-in User</span>
+          <h3 id="metricUser">Guest</h3>
+          <p>Student or admin account</p>
+        </article>
+      </div>
 
-</nav>
+      <div class="card intro-card">
+        <h3>Welcome to CoTeSy Computer Training</h3>
+        <p>
+          This system allows student registration, login, online exams, marks, attendance tracking,
+          certificate generation, WhatsApp alerts, and admin overview.
+        </p>
+      </div>
+    </section>
 
+    <section id="courses" class="page">
+      <h2 class="section-title">Available Courses</h2>
+      <div class="grid-4" id="courseGrid"></div>
+    </section>
 
-<section id="home">
+    <section id="register" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title">Student Registration</h2>
 
-<h2>Welcome</h2>
-<p>CoTeSy Online Training Platform</p>
+          <form id="registerForm" class="form-grid">
+            <input type="text" id="regName" placeholder="Full Name and Surname" required />
+            <input type="text" id="regIdNumber" placeholder="SA ID Number" required />
+            <input type="email" id="regEmail" placeholder="Email Address" required />
+            <input type="text" id="regPhone" placeholder="Phone Number" required />
+            <input type="password" id="regPassword" placeholder="Create Password" required />
 
-</section>
+            <select id="regCourse" required>
+              <option value="Computer Basics">Computer Basics</option>
+              <option value="Microsoft Word">Microsoft Word</option>
+              <option value="Microsoft Excel">Microsoft Excel</option>
+              <option value="PowerPoint">PowerPoint</option>
+            </select>
 
+            <textarea id="regAddress" placeholder="Address"></textarea>
 
-<section id="register" class="hide">
+            <button type="submit" class="btn primary">Register Student</button>
+          </form>
 
-<h2>Student Registration</h2>
+          <div id="registerMessage" class="message"></div>
+        </div>
 
-<input id="name" placeholder="Full Name">
+        <div class="card">
+          <h2 class="section-title">WhatsApp Alert</h2>
+          <p>After registration, a WhatsApp message link will be created.</p>
+          <div class="notice-box">
+            <p><strong>Tip:</strong> Replace the WhatsApp number in <code>script.js</code> with your real CoTeSy number.</p>
+          </div>
+          <a id="whatsappLink" class="btn outline hidden" target="_blank">Send WhatsApp Registration Alert</a>
+        </div>
+      </div>
 
-<input id="email" placeholder="Email">
+      <div class="card mt-24">
+        <h3>Registered Students</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Course</th>
+                <th>Score</th>
+                <th>Attendance</th>
+              </tr>
+            </thead>
+            <tbody id="studentTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-<input id="password" type="password" placeholder="Password">
+    <section id="login" class="page">
+      <div class="grid-2">
+        <div class="card narrow-card">
+          <h2 class="section-title">Student / Admin Login</h2>
+          <div class="form-grid">
+            <input type="email" id="loginEmail" placeholder="Email Address" />
+            <input type="password" id="loginPassword" placeholder="Password" />
+            <button id="loginBtn" class="btn primary">Login</button>
+          </div>
+          <div id="loginMessage" class="message"></div>
+        </div>
 
-<select id="course">
+        <div class="card narrow-card">
+          <h2 class="section-title">Session</h2>
+          <p id="sessionInfo">No user logged in.</p>
+          <button id="logoutBtn" class="btn outline mt-16">Logout</button>
+        </div>
+      </div>
+    </section>
 
-<option>Computer Basics</option>
-<option>Microsoft Word</option>
-<option>Microsoft Excel</option>
-<option>PowerPoint</option>
+    <section id="portal" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title">Student Dashboard</h2>
+          <div id="portalEmpty" class="notice-box">No student logged in yet.</div>
 
-</select>
+          <div id="portalContent" class="hidden">
+            <div class="profile-box">
+              <div class="avatar" id="portalAvatar">S</div>
+              <div>
+                <h3 id="portalName">Student Name</h3>
+                <p id="portalCourse">Course</p>
+                <p id="portalEmail">Email</p>
+              </div>
+            </div>
 
-<button onclick="register()">Register</button>
+            <div class="grid-2 mini-cards">
+              <div class="mini-card"><span>Exam Score</span><strong id="portalScore">0%</strong></div>
+              <div class="mini-card"><span>Attendance</span><strong id="portalAttendance">0%</strong></div>
+              <div class="mini-card"><span>Certificate</span><strong id="portalCertificate">Pending</strong></div>
+              <div class="mini-card"><span>Student ID</span><strong id="portalStudentId">CTS-001</strong></div>
+            </div>
+          </div>
+        </div>
 
-<p id="regmsg"></p>
+        <div class="card">
+          <h2 class="section-title">Quick Actions</h2>
+          <div class="action-list">
+            <button class="btn outline" data-go="exams">Go to Exams</button>
+            <button class="btn outline" data-go="certificates">View Certificate</button>
+            <button class="btn outline" data-go="attendance">View Attendance</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
-</section>
+    <section id="exams" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title">Online Exams</h2>
+          <select id="examSelect"></select>
 
+          <div class="notice-box mt-16">
+            <p><strong>Course:</strong> <span id="examCourse"></span></p>
+            <p><strong>Pass Mark:</strong> <span id="examPassMark"></span></p>
+          </div>
+        </div>
 
-<section id="login" class="hide">
+        <div class="card">
+          <h2 class="section-title" id="examTitle">Exam</h2>
+          <div id="examQuestions"></div>
+          <button id="submitExamBtn" class="btn primary mt-16">Submit Exam</button>
+          <div id="examMessage" class="message"></div>
+        </div>
+      </div>
+    </section>
 
-<h2>Student Login</h2>
+    <section id="attendance" class="page">
+      <div class="card">
+        <h2 class="section-title">Attendance Register</h2>
+        <div id="attendanceActions" class="grid-3"></div>
+      </div>
 
-<input id="logemail" placeholder="Email">
+      <div class="card mt-24">
+        <h3>Attendance Records</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Student</th>
+                <th>Course</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="attendanceTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
 
-<input id="logpass" type="password" placeholder="Password">
+    <section id="certificates" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title">Certificate Setup</h2>
+          <input type="text" id="brandName" value="CoTeSy IT Services" placeholder="Brand Name" />
+          <input type="text" id="directorName" value="CoTeSy Director / Trainer" placeholder="Director Name" class="mt-12" />
+          <button id="useLoggedStudentBtn" class="btn primary mt-16">Use Logged-in Student</button>
 
-<button onclick="login()">Login</button>
+          <div class="student-select-list" id="certificateStudentList"></div>
+        </div>
 
-<p id="loginmsg"></p>
+        <div>
+          <div id="certificateArea" class="certificate-box">
+            <div class="certificate-inner">
+              <div class="cert-badge">★</div>
+              <p class="cert-brand" id="certBrand">CoTeSy IT Services</p>
+              <h2>Certificate of Completion</h2>
+              <p>This certificate is proudly awarded to</p>
+              <h3 id="certStudentName">Student Name</h3>
+              <p>for successfully completing</p>
+              <h4 id="certCourse">Course Name</h4>
 
-</section>
+              <div class="cert-meta">
+                <div><span>Student ID</span><strong id="certStudentId">CTS-001</strong></div>
+                <div><span>Score</span><strong id="certScore">0%</strong></div>
+                <div><span>Date</span><strong id="certDate"></strong></div>
+              </div>
 
+              <div class="cert-signatures">
+                <div>
+                  <span>Training Provider</span>
+                  <div class="sig-line"></div>
+                  <strong id="certBrandFooter">CoTeSy IT Services</strong>
+                </div>
+                <div>
+                  <span>Authorized Signature</span>
+                  <div class="sig-line"></div>
+                  <strong id="certDirector">CoTeSy Director / Trainer</strong>
+                </div>
+              </div>
+            </div>
+          </div>
 
-<section id="students" class="hide">
+          <button id="downloadPdfBtn" class="btn primary mt-16">Download / Save as PDF</button>
+        </div>
+      </div>
+    </section>
 
-<h2>Registered Students</h2>
+    <section id="admin" class="page">
+      <div class="grid-2">
+        <div class="card">
+          <h2 class="section-title">Admin Dashboard</h2>
+          <div class="grid-3 mini-cards">
+            <div class="mini-card"><span>Students</span><strong id="adminStudents">0</strong></div>
+            <div class="mini-card"><span>Attendance Records</span><strong id="adminAttendance">0</strong></div>
+            <div class="mini-card"><span>Certificates Ready</span><strong id="adminReady">0</strong></div>
+          </div>
+        </div>
 
-<table>
+        <div class="card">
+          <h2 class="section-title">Admin Records</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Course</th>
+                  <th>Score</th>
+                  <th>Attendance</th>
+                </tr>
+              </thead>
+              <tbody id="adminTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-<thead>
-<tr>
-<th>Name</th>
-<th>Email</th>
-<th>Course</th>
-</tr>
-</thead>
-
-<tbody id="studentTable"></tbody>
-
-</table>
-
-</section>
-
-
-<script type="module" src="script.js"></script>
-
+  <script type="module" src="script.js"></script>
 </body>
 </html>
