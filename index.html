@@ -1,55 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CoTeSy IT Services Training</title>
+<title>CoTeSy Computer Training</title>
+
 <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
 
 <header>
+
 <h1>CoTeSy IT Services</h1>
-<p>Online Computer Training Academy</p>
+<p>Online Computer Training</p>
+
 </header>
 
+
 <nav>
+
 <button onclick="show('home')">Home</button>
 <button onclick="show('register')">Register</button>
 <button onclick="show('login')">Login</button>
 <button onclick="show('students')">Students</button>
+
 </nav>
 
+
 <section id="home">
+
 <h2>Welcome</h2>
-<p>CoTeSy Online Computer Training System</p>
+<p>CoTeSy Online Training Platform</p>
+
 </section>
 
+
 <section id="register" class="hide">
+
 <h2>Student Registration</h2>
 
 <input id="name" placeholder="Full Name">
+
 <input id="email" placeholder="Email">
+
 <input id="password" type="password" placeholder="Password">
 
 <select id="course">
+
 <option>Computer Basics</option>
 <option>Microsoft Word</option>
 <option>Microsoft Excel</option>
 <option>PowerPoint</option>
+
 </select>
 
-<button onclick="register()">Register Student</button>
+<button onclick="register()">Register</button>
 
 <p id="regmsg"></p>
+
 </section>
+
 
 <section id="login" class="hide">
 
 <h2>Student Login</h2>
 
 <input id="logemail" placeholder="Email">
+
 <input id="logpass" type="password" placeholder="Password">
 
 <button onclick="login()">Login</button>
@@ -58,11 +77,13 @@
 
 </section>
 
+
 <section id="students" class="hide">
 
 <h2>Registered Students</h2>
 
 <table>
+
 <thead>
 <tr>
 <th>Name</th>
@@ -77,7 +98,8 @@
 
 </section>
 
-<script src="script.js"></script>
+
+<script type="module" src="script.js"></script>
 
 </body>
 </html>
