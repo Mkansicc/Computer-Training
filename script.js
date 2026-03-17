@@ -1,15 +1,21 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { initializeApp, deleteApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
 import {
   getFirestore,
   collection,
   addDoc,
-  getDocs
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import {
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signOut
+  signOut,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
 const firebaseConfig = {
@@ -26,8 +32,18 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
+/* PUT YOUR REAL ADMIN EMAILS HERE */
+const ADMIN_EMAILS = [
+  "youradminemail@gmail.com",
+  "admin@cotesy.co.za"
+];
+
+const WHATSAPP_NUMBER = "27720654503";
+
 let students = [];
 let currentStudent = null;
+let currentUserRole = null;
+let currentUserEmail = null;
 
 const COURSES = [
   {
@@ -52,24 +68,57 @@ const COURSES = [
   }
 ];
 
+function getRoleByEmail(email = "") {
+  return ADMIN_EMAILS.map((item) => item.toLowerCase()).includes(email.toLowerCase())
+    ? "admin"
+    : "student";
+}
+
+function setAppVisibility(isLoggedIn) {
+  const loginPage = document.getElementById("loginPage");
+  const appShell = document.getElementById("appShell");
+
+  if (isLoggedIn) {
+    loginPage.classList.remove("active");
+    loginPage.classList.add("hidden");
+    appShell.classList.remove("hidden");
+  } else {
+    loginPage.classList.add("active");
+    loginPage.classList.remove("hidden");
+    appShell.classList.add("hidden");
+  }
+}
+
+function applyRoleVisibility(role) {
+  document.querySelectorAll(".nav-btn[data-role]").forEach((btn) => {
+    const roles = (btn.dataset.role || "").split(",");
+    if (roles.includes(role)) {
+      btn.classList.remove("role-hidden");
+    } else {
+      btn.classList.add("role-hidden");
+    }
+  });
+}
+
 function switchSection(id) {
-  document.querySelectorAll(".page").forEach((page) => {
-    page.classList.remove("active");
-  });
+  const allowedStudentSections = ["home", "courses", "portal"];
 
-  document.querySelectorAll(".nav-btn").forEach((btn) => {
-    btn.classList.remove("active");
-  });
-
-  const targetPage = document.getElementById(id);
-  if (targetPage) {
-    targetPage.classList.add("active");
+  if (!currentUserRole) {
+    return;
   }
 
-  const targetBtn = document.querySelector(`.nav-btn[data-section="${id}"]`);
-  if (targetBtn) {
-    targetBtn.classList.add("active");
+  if (currentUserRole === "student" && !allowedStudentSections.includes(id)) {
+    id = "home";
   }
+
+  document.querySelectorAll(".page").forEach((page) => page.classList.remove("active"));
+  document.querySelectorAll(".nav-btn[data-section]").forEach((btn) => btn.classList.remove("active"));
+
+  const page = document.getElementById(id);
+  const navBtn = document.querySelector(`.nav-btn[data-section="${id}"]`);
+
+  if (page) page.classList.add("active");
+  if (navBtn) navBtn.classList.add("active");
 }
 
 function renderCourses() {
@@ -87,54 +136,53 @@ function renderCourses() {
 
 function updateDashboardCounts() {
   const totalStudents = students.length;
-  const attendanceRecords = 0;
   const certificatesReady = students.filter((student) => student.certificateReady).length;
-
   const avgScore = students.length
-    ? Math.round(students.reduce((sum, student) => sum + (Number(student.examScore) || 0), 0) / students.length)
+    ? Math.round(students.reduce((sum, item) => sum + (Number(item.examScore) || 0), 0) / students.length)
     : 0;
 
-  const statStudents = document.getElementById("statStudents");
-  const statCertificates = document.getElementById("statCertificates");
-  const statAttendance = document.getElementById("statAttendance");
-  const metricStudents = document.getElementById("metricStudents");
-  const metricAvgScore = document.getElementById("metricAvgScore");
-  const adminStudents = document.getElementById("adminStudents");
-  const adminAttendance = document.getElementById("adminAttendance");
-  const adminReady = document.getElementById("adminReady");
+  document.getElementById("statStudents").textContent = totalStudents;
+  document.getElementById("statCertificates").textContent = certificatesReady;
+  document.getElementById("statAvgScore").textContent = `${avgScore}%`;
 
-  if (statStudents) statStudents.textContent = totalStudents;
-  if (statCertificates) statCertificates.textContent = certificatesReady;
-  if (statAttendance) statAttendance.textContent = attendanceRecords;
-  if (metricStudents) metricStudents.textContent = totalStudents;
-  if (metricAvgScore) metricAvgScore.textContent = `${avgScore}%`;
-  if (adminStudents) adminStudents.textContent = totalStudents;
-  if (adminAttendance) adminAttendance.textContent = attendanceRecords;
-  if (adminReady) adminReady.textContent = certificatesReady;
+  document.getElementById("metricStudents").textContent = totalStudents;
+  document.getElementById("metricAvg").textContent = `${avgScore}%`;
+  document.getElementById("adminStudents").textContent = totalStudents;
+  document.getElementById("adminReady").textContent = certificatesReady;
+  document.getElementById("adminAvgScore").textContent = `${avgScore}%`;
 }
 
-function renderStudentPortal() {
-  const portalEmpty = document.getElementById("portalEmpty");
-  const portalContent = document.getElementById("portalContent");
+function updateSessionUI() {
   const metricUser = document.getElementById("metricUser");
+  const metricRole = document.getElementById("metricRole");
   const sessionInfo = document.getElementById("sessionInfo");
 
-  if (!currentStudent) {
-    if (portalEmpty) portalEmpty.classList.remove("hidden");
-    if (portalContent) portalContent.classList.add("hidden");
-    if (metricUser) metricUser.textContent = "Guest";
-    if (sessionInfo) sessionInfo.textContent = "No user logged in.";
+  if (!currentUserEmail) {
+    metricUser.textContent = "Guest";
+    metricRole.textContent = "No active session";
+    sessionInfo.textContent = "No user logged in.";
     return;
   }
 
-  if (portalEmpty) portalEmpty.classList.add("hidden");
-  if (portalContent) portalContent.classList.remove("hidden");
-  if (metricUser) metricUser.textContent = currentStudent.email || "Student";
-  if (sessionInfo) sessionInfo.textContent = `Logged in as ${currentStudent.email}`;
+  metricUser.textContent = currentUserEmail;
+  metricRole.textContent = currentUserRole === "admin" ? "Administrator account" : "Student account";
+  sessionInfo.textContent = `Logged in as ${currentUserEmail} (${currentUserRole})`;
+}
 
-  document.getElementById("portalAvatar").textContent = currentStudent.fullName
-    ? currentStudent.fullName.charAt(0).toUpperCase()
-    : "S";
+function renderPortal() {
+  const portalEmpty = document.getElementById("portalEmpty");
+  const portalContent = document.getElementById("portalContent");
+
+  if (!currentStudent) {
+    portalEmpty.classList.remove("hidden");
+    portalContent.classList.add("hidden");
+    return;
+  }
+
+  portalEmpty.classList.add("hidden");
+  portalContent.classList.remove("hidden");
+
+  document.getElementById("portalAvatar").textContent = (currentStudent.fullName || "S").charAt(0).toUpperCase();
   document.getElementById("portalName").textContent = currentStudent.fullName || "-";
   document.getElementById("portalCourse").textContent = currentStudent.course || "-";
   document.getElementById("portalEmail").textContent = currentStudent.email || "-";
@@ -144,35 +192,11 @@ function renderStudentPortal() {
   document.getElementById("portalStudentId").textContent = currentStudent.id || "-";
 }
 
-function renderCertificatesList() {
-  const list = document.getElementById("certificateStudentList");
-  if (!list) return;
-
-  list.innerHTML = students.map((student) => `
-    <div class="student-select-item">
-      <div>
-        <strong>${student.fullName || "-"}</strong>
-        <p>${student.course || "-"}</p>
-      </div>
-      <button class="btn outline use-cert-btn" type="button" data-email="${student.email}">Select</button>
-    </div>
-  `).join("");
-
-  document.querySelectorAll(".use-cert-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const student = students.find((item) => item.email === btn.dataset.email);
-      if (student) {
-        fillCertificate(student);
-      }
-    });
-  });
-}
-
 function fillCertificate(student) {
   if (!student) return;
 
-  const brandName = document.getElementById("brandName")?.value || "CoTeSy IT Services";
-  const directorName = document.getElementById("directorName")?.value || "CoTeSy Director / Trainer";
+  const brandName = document.getElementById("brandName").value || "CoTeSy IT Services";
+  const directorName = document.getElementById("directorName").value || "CoTeSy Director / Trainer";
 
   document.getElementById("certBrand").textContent = brandName;
   document.getElementById("certBrandFooter").textContent = brandName;
@@ -184,65 +208,148 @@ function fillCertificate(student) {
   document.getElementById("certDate").textContent = new Date().toLocaleDateString();
 }
 
-async function loadStudents() {
-  const studentTableBody = document.getElementById("studentTableBody");
+function renderCertificateStudentList() {
+  const list = document.getElementById("certificateStudentList");
+  if (!list) return;
+
+  list.innerHTML = students.map((student) => `
+    <div class="student-select-item">
+      <div>
+        <strong>${student.fullName || "-"}</strong>
+        <p>${student.course || "-"}</p>
+      </div>
+      <button class="btn outline select-cert-btn" type="button" data-docid="${student.docId}">Select</button>
+    </div>
+  `).join("");
+
+  document.querySelectorAll(".select-cert-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const student = students.find((item) => item.docId === btn.dataset.docid);
+      if (student) {
+        fillCertificate(student);
+      }
+    });
+  });
+}
+
+function renderAdminTable() {
   const adminTableBody = document.getElementById("adminTableBody");
+  if (!adminTableBody) return;
 
-  if (!studentTableBody || !adminTableBody) return;
+  adminTableBody.innerHTML = students.map((student) => `
+    <tr>
+      <td>${student.id || "-"}</td>
+      <td>${student.fullName || "-"}</td>
+      <td>${student.email || "-"}</td>
+      <td>${student.course || "-"}</td>
+      <td>${student.examScore || 0}%</td>
+      <td>${student.attendance || 0}%</td>
+      <td>
+        <div class="table-actions">
+          <button class="btn tiny outline edit-btn" type="button" data-docid="${student.docId}">Edit</button>
+          <button class="btn tiny danger delete-btn" type="button" data-docid="${student.docId}">Delete</button>
+        </div>
+      </td>
+    </tr>
+  `).join("");
 
-  studentTableBody.innerHTML = "";
-  adminTableBody.innerHTML = "";
+  document.querySelectorAll(".edit-btn").forEach((btn) => {
+    btn.addEventListener("click", () => startEditStudent(btn.dataset.docid));
+  });
+
+  document.querySelectorAll(".delete-btn").forEach((btn) => {
+    btn.addEventListener("click", () => deleteStudentRecord(btn.dataset.docid));
+  });
+}
+
+function startEditStudent(docId) {
+  if (currentUserRole !== "admin") return;
+
+  const student = students.find((item) => item.docId === docId);
+  if (!student) return;
+
+  document.getElementById("editDocId").value = student.docId || "";
+  document.getElementById("regName").value = student.fullName || "";
+  document.getElementById("regIdNumber").value = student.idNumber || "";
+  document.getElementById("regEmail").value = student.email || "";
+  document.getElementById("regPhone").value = student.phone || "";
+  document.getElementById("regPassword").value = "";
+  document.getElementById("regCourse").value = student.course || "Computer Basics";
+  document.getElementById("regAddress").value = student.address || "";
+
+  document.getElementById("registerTitle").textContent = "Edit Student";
+  document.getElementById("saveStudentBtn").textContent = "Update Student";
+  document.getElementById("cancelEditBtn").classList.remove("hidden");
+
+  switchSection("register");
+}
+
+function resetStudentForm() {
+  document.getElementById("registerForm").reset();
+  document.getElementById("editDocId").value = "";
+  document.getElementById("registerTitle").textContent = "Register Student";
+  document.getElementById("saveStudentBtn").textContent = "Register Student";
+  document.getElementById("cancelEditBtn").classList.add("hidden");
+  document.getElementById("registerMessage").textContent = "";
+}
+
+async function loadStudents() {
   students = [];
 
   try {
     const snapshot = await getDocs(collection(db, "students"));
 
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      students.push(data);
-
-      const studentRow = `
-        <tr>
-          <td>${data.id || "-"}</td>
-          <td>${data.fullName || "-"}</td>
-          <td>${data.email || "-"}</td>
-          <td>${data.course || "-"}</td>
-          <td>${data.examScore || 0}%</td>
-          <td>${data.attendance || 0}%</td>
-        </tr>
-      `;
-
-      const adminRow = `
-        <tr>
-          <td>${data.fullName || "-"}</td>
-          <td>${data.email || "-"}</td>
-          <td>${data.course || "-"}</td>
-          <td>${data.examScore || 0}%</td>
-          <td>${data.attendance || 0}%</td>
-        </tr>
-      `;
-
-      studentTableBody.innerHTML += studentRow;
-      adminTableBody.innerHTML += adminRow;
+    snapshot.forEach((snap) => {
+      students.push({
+        docId: snap.id,
+        ...snap.data()
+      });
     });
 
-    updateDashboardCounts();
-    renderCertificatesList();
+    students.sort((a, b) => (a.fullName || "").localeCompare(b.fullName || ""));
 
-    if (currentStudent) {
-      const refreshed = students.find((student) => student.email === currentStudent.email);
+    updateDashboardCounts();
+    renderAdminTable();
+    renderCertificateStudentList();
+
+    if (currentUserRole === "student" && currentUserEmail) {
+      currentStudent = students.find((student) => student.email === currentUserEmail) || null;
+    }
+
+    if (currentUserRole === "admin" && currentStudent?.docId) {
+      const refreshed = students.find((student) => student.docId === currentStudent.docId);
       if (refreshed) currentStudent = refreshed;
     }
 
-    renderStudentPortal();
+    renderPortal();
   } catch (error) {
     console.error("Error loading students:", error);
   }
 }
 
-async function registerStudent(e) {
+async function createStudentAuthWithSecondaryApp(email, password) {
+  const existing = getApps().find((instance) => instance.name === "Secondary");
+  if (existing) {
+    await deleteApp(existing);
+  }
+
+  const secondaryApp = initializeApp(firebaseConfig, "Secondary");
+  const secondaryAuth = getAuth(secondaryApp);
+
+  try {
+    await createUserWithEmailAndPassword(secondaryAuth, email, password);
+    await signOut(secondaryAuth);
+  } finally {
+    await deleteApp(secondaryApp);
+  }
+}
+
+async function saveStudent(e) {
   e.preventDefault();
 
+  if (currentUserRole !== "admin") return;
+
+  const editDocId = document.getElementById("editDocId").value.trim();
   const fullName = document.getElementById("regName").value.trim();
   const idNumber = document.getElementById("regIdNumber").value.trim();
   const email = document.getElementById("regEmail").value.trim();
@@ -253,15 +360,42 @@ async function registerStudent(e) {
   const registerMessage = document.getElementById("registerMessage");
   const whatsappLink = document.getElementById("whatsappLink");
 
-  if (!fullName || !idNumber || !email || !phone || !password || !course) {
+  if (!fullName || !idNumber || !email || !phone || !course) {
     registerMessage.textContent = "Please fill in all required fields.";
     return;
   }
 
   try {
-    await createUserWithEmailAndPassword(auth, email, password);
+    if (editDocId) {
+      const current = students.find((item) => item.docId === editDocId);
+      if (!current) {
+        registerMessage.textContent = "Student record not found.";
+        return;
+      }
+
+      await updateDoc(doc(db, "students", editDocId), {
+        fullName,
+        idNumber,
+        email,
+        phone,
+        course,
+        address
+      });
+
+      registerMessage.textContent = "Student updated successfully.";
+      resetStudentForm();
+      await loadStudents();
+      return;
+    }
+
+    if (!password) {
+      registerMessage.textContent = "Password is required for new student registration.";
+      return;
+    }
 
     const studentId = "CTS-" + Date.now();
+
+    await createStudentAuthWithSecondaryApp(email, password);
 
     await addDoc(collection(db, "students"), {
       id: studentId,
@@ -273,20 +407,42 @@ async function registerStudent(e) {
       address,
       examScore: 0,
       attendance: 0,
-      certificateReady: false
+      certificateReady: false,
+      createdAt: new Date().toISOString()
     });
 
     registerMessage.textContent = "Student registered successfully.";
 
     const message = `New CoTeSy registration:%0AName: ${fullName}%0AEmail: ${email}%0ACourse: ${course}%0APhone: ${phone}`;
-    whatsappLink.href = `https://wa.me/27720654503?text=${message}`;
+    whatsappLink.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${message}`;
     whatsappLink.classList.remove("hidden");
 
-    document.getElementById("registerForm").reset();
+    resetStudentForm();
     await loadStudents();
-    switchSection("register");
   } catch (error) {
     registerMessage.textContent = error.message;
+  }
+}
+
+async function deleteStudentRecord(docId) {
+  if (currentUserRole !== "admin") return;
+
+  const student = students.find((item) => item.docId === docId);
+  if (!student) return;
+
+  const ok = window.confirm(`Delete ${student.fullName}? This removes the Firestore student record.`);
+  if (!ok) return;
+
+  try {
+    await deleteDoc(doc(db, "students", docId));
+
+    if (currentStudent?.docId === docId) {
+      currentStudent = null;
+    }
+
+    await loadStudents();
+  } catch (error) {
+    alert("Delete failed: " + error.message);
   }
 }
 
@@ -295,19 +451,14 @@ async function loginUser() {
   const password = document.getElementById("loginPassword").value.trim();
   const loginMessage = document.getElementById("loginMessage");
 
+  if (!email || !password) {
+    loginMessage.textContent = "Please enter email and password.";
+    return;
+  }
+
   try {
     await signInWithEmailAndPassword(auth, email, password);
-
-    currentStudent = students.find((student) => student.email === email) || null;
-
-    loginMessage.textContent = "Login successful.";
-    renderStudentPortal();
-
-    if (currentStudent) {
-      fillCertificate(currentStudent);
-    }
-
-    switchSection("portal");
+    loginMessage.textContent = "";
   } catch (error) {
     loginMessage.textContent = "Login failed: " + error.message;
   }
@@ -316,43 +467,8 @@ async function loginUser() {
 async function logoutUser() {
   try {
     await signOut(auth);
-    currentStudent = null;
-    renderStudentPortal();
-    switchSection("home");
   } catch (error) {
     console.error("Logout error:", error);
-  }
-}
-
-function setupExamArea() {
-  const examSelect = document.getElementById("examSelect");
-  if (!examSelect) return;
-
-  examSelect.innerHTML = `
-    <option>Computer Basics Test</option>
-    <option>Microsoft Word Test</option>
-    <option>Microsoft Excel Test</option>
-    <option>PowerPoint Test</option>
-  `;
-
-  document.getElementById("examCourse").textContent = "Course-based exam";
-  document.getElementById("examPassMark").textContent = "50%";
-
-  const examQuestions = document.getElementById("examQuestions");
-  if (examQuestions) {
-    examQuestions.innerHTML = `
-      <div class="notice-box">
-        <p><strong>1. What is a mouse used for?</strong></p>
-        <label><input type="radio" name="q1" value="correct"> To move the pointer</label><br>
-        <label><input type="radio" name="q1" value="wrong"> To print a page</label>
-      </div>
-
-      <div class="notice-box mt-16">
-        <p><strong>2. Which program is used for typing letters?</strong></p>
-        <label><input type="radio" name="q2" value="correct"> Microsoft Word</label><br>
-        <label><input type="radio" name="q2" value="wrong"> Paint</label>
-      </div>
-    `;
   }
 }
 
@@ -380,64 +496,75 @@ function setupAttendanceArea() {
   `;
 }
 
+function bindStaticEvents() {
+  document.querySelectorAll(".nav-btn[data-section]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      switchSection(btn.dataset.section);
+    });
+  });
+
+  document.getElementById("loginBtn").addEventListener("click", loginUser);
+  document.getElementById("logoutBtn").addEventListener("click", logoutUser);
+  document.getElementById("registerForm").addEventListener("submit", saveStudent);
+  document.getElementById("cancelEditBtn").addEventListener("click", resetStudentForm);
+
+  document.getElementById("useLoggedStudentBtn").addEventListener("click", () => {
+    if (currentStudent) fillCertificate(currentStudent);
+  });
+
+  document.getElementById("brandName").addEventListener("input", () => {
+    if (currentStudent) fillCertificate(currentStudent);
+  });
+
+  document.getElementById("directorName").addEventListener("input", () => {
+    if (currentStudent) fillCertificate(currentStudent);
+  });
+
+  document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+    window.print();
+  });
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
-  document.querySelectorAll(".nav-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const section = btn.getAttribute("data-section");
-      switchSection(section);
-    });
-  });
-
-  document.querySelectorAll("[data-go]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const section = btn.getAttribute("data-go");
-      switchSection(section);
-    });
-  });
-
-  const registerForm = document.getElementById("registerForm");
-  if (registerForm) {
-    registerForm.addEventListener("submit", registerStudent);
-  }
-
-  const loginBtn = document.getElementById("loginBtn");
-  if (loginBtn) {
-    loginBtn.addEventListener("click", loginUser);
-  }
-
-  const logoutBtn = document.getElementById("logoutBtn");
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", logoutUser);
-  }
-
-  const useLoggedStudentBtn = document.getElementById("useLoggedStudentBtn");
-  if (useLoggedStudentBtn) {
-    useLoggedStudentBtn.addEventListener("click", () => {
-      if (currentStudent) fillCertificate(currentStudent);
-    });
-  }
-
-  const brandName = document.getElementById("brandName");
-  const directorName = document.getElementById("directorName");
-  if (brandName) {
-    brandName.addEventListener("input", () => {
-      if (currentStudent) fillCertificate(currentStudent);
-    });
-  }
-  if (directorName) {
-    directorName.addEventListener("input", () => {
-      if (currentStudent) fillCertificate(currentStudent);
-    });
-  }
-
-  const downloadPdfBtn = document.getElementById("downloadPdfBtn");
-  if (downloadPdfBtn) {
-    downloadPdfBtn.addEventListener("click", () => window.print());
-  }
-
-  setupExamArea();
-  setupAttendanceArea();
+  bindStaticEvents();
   renderCourses();
-  switchSection("home");
-  await loadStudents();
+  setupAttendanceArea();
+  resetStudentForm();
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      currentUserRole = null;
+      currentUserEmail = null;
+      currentStudent = null;
+      updateSessionUI();
+      renderPortal();
+      setAppVisibility(false);
+      return;
+    }
+
+    currentUserEmail = user.email || "";
+    currentUserRole = getRoleByEmail(currentUserEmail);
+
+    await loadStudents();
+
+    if (currentUserRole === "student") {
+      currentStudent = students.find((student) => student.email === currentUserEmail) || null;
+    } else {
+      currentStudent = students.find((student) => student.email === currentUserEmail) || null;
+    }
+
+    updateSessionUI();
+    renderPortal();
+    applyRoleVisibility(currentUserRole);
+    setAppVisibility(true);
+
+    if (currentUserRole === "student") {
+      switchSection("home");
+      if (currentStudent) {
+        fillCertificate(currentStudent);
+      }
+    } else {
+      switchSection("home");
+    }
+  });
 });
