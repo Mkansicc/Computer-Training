@@ -30,6 +30,48 @@ body {
   margin: 0 auto;
 }
 
+/* LOGIN */
+.login-page {
+  min-height: 100vh;
+  display: none;
+  padding: 60px 0;
+}
+
+.login-page.active {
+  display: block;
+}
+
+.login-wrap {
+  max-width: 980px;
+}
+
+.login-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  color: var(--primary-dark);
+}
+
+.brand-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.14);
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.brand-logo.big {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--white);
+  border: none;
+}
+
+/* HERO */
 .hero {
   background: linear-gradient(135deg, var(--primary-dark), var(--primary), var(--secondary));
   color: var(--white);
@@ -47,18 +89,6 @@ body {
   display: flex;
   align-items: center;
   gap: 14px;
-}
-
-.brand-logo {
-  width: 64px;
-  height: 64px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.14);
-  display: grid;
-  place-items: center;
-  font-size: 28px;
-  font-weight: 800;
-  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .brand h1,
@@ -113,6 +143,7 @@ body {
   margin-top: 6px;
 }
 
+/* NAV */
 .nav {
   background: var(--white);
   border-bottom: 1px solid var(--border);
@@ -143,6 +174,13 @@ body {
   border-color: var(--primary);
 }
 
+.nav-logout {
+  margin-left: auto;
+  color: var(--danger);
+  border-color: #f1caca;
+}
+
+/* LAYOUT */
 .main-content {
   padding: 28px 0 56px;
 }
@@ -251,18 +289,30 @@ textarea {
   cursor: pointer;
   font-weight: 700;
   text-decoration: none;
+  border: none;
 }
 
 .btn.primary {
   background: var(--primary);
   color: var(--white);
-  border: none;
 }
 
 .btn.outline {
   background: transparent;
   color: var(--primary);
   border: 1px solid var(--primary);
+}
+
+.btn.danger {
+  background: #fff1f1;
+  color: var(--danger);
+  border: 1px solid #f0c8c8;
+}
+
+.btn.tiny {
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 0.85rem;
 }
 
 .notice-box {
@@ -275,6 +325,7 @@ textarea {
 .message {
   margin-top: 12px;
   min-height: 24px;
+  font-weight: 700;
 }
 
 .table-wrap {
@@ -291,11 +342,18 @@ td {
   padding: 12px 10px;
   text-align: left;
   border-bottom: 1px solid #edf2f7;
+  vertical-align: top;
 }
 
 th {
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .profile-box {
@@ -334,11 +392,6 @@ th {
   font-size: 1.2rem;
 }
 
-.action-list {
-  display: grid;
-  gap: 12px;
-}
-
 .student-action-card {
   background: #f8fbff;
   border: 1px solid var(--border);
@@ -353,15 +406,6 @@ th {
   color: var(--white);
   font-size: 0.82rem;
   font-weight: 700;
-}
-
-.badge.present,
-.badge.ready {
-  background: var(--success);
-}
-
-.badge.absent {
-  background: var(--danger);
 }
 
 .badge.pending {
@@ -463,6 +507,10 @@ th {
   display: none !important;
 }
 
+.role-hidden {
+  display: none !important;
+}
+
 .mt-12 {
   margin-top: 12px;
 }
@@ -502,6 +550,10 @@ th {
     overflow-x: auto;
     flex-wrap: nowrap;
     padding-bottom: 10px;
+  }
+
+  .nav-logout {
+    margin-left: 0;
   }
 }
 
