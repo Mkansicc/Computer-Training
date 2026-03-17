@@ -6,9 +6,7 @@ import {
   getDocs,
   doc,
   updateDoc,
-  deleteDoc,
-  query,
-  where
+  deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 import {
   getAuth,
@@ -32,10 +30,9 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-/* PUT YOUR REAL ADMIN EMAILS HERE */
+/* ADMIN EMAILS */
 const ADMIN_EMAILS = [
-  "youradminemail@gmail.com",
-  "admin@cotesy.co.za"
+  "mkansicc@gmail.com"
 ];
 
 const WHATSAPP_NUMBER = "27720654503";
@@ -103,9 +100,7 @@ function applyRoleVisibility(role) {
 function switchSection(id) {
   const allowedStudentSections = ["home", "courses", "portal"];
 
-  if (!currentUserRole) {
-    return;
-  }
+  if (!currentUserRole) return;
 
   if (currentUserRole === "student" && !allowedStudentSections.includes(id)) {
     id = "home";
@@ -141,15 +136,25 @@ function updateDashboardCounts() {
     ? Math.round(students.reduce((sum, item) => sum + (Number(item.examScore) || 0), 0) / students.length)
     : 0;
 
-  document.getElementById("statStudents").textContent = totalStudents;
-  document.getElementById("statCertificates").textContent = certificatesReady;
-  document.getElementById("statAvgScore").textContent = `${avgScore}%`;
+  const statStudents = document.getElementById("statStudents");
+  const statCertificates = document.getElementById("statCertificates");
+  const statAvgScore = document.getElementById("statAvgScore");
+  const metricStudents = document.getElementById("metricStudents");
+  const metricAvg = document.getElementById("metricAvg");
+  const adminStudents = document.getElementById("adminStudents");
+  const adminReady = document.getElementById("adminReady");
+  const adminAvgScore = document.getElementById("adminAvgScore");
 
-  document.getElementById("metricStudents").textContent = totalStudents;
-  document.getElementById("metricAvg").textContent = `${avgScore}%`;
-  document.getElementById("adminStudents").textContent = totalStudents;
-  document.getElementById("adminReady").textContent = certificatesReady;
-  document.getElementById("adminAvgScore").textContent = `${avgScore}%`;
+  if (statStudents) statStudents.textContent = totalStudents;
+  if (statCertificates) statCertificates.textContent = certificatesReady;
+  if (statAvgScore) statAvgScore.textContent = `${avgScore}%`;
+
+  if (metricStudents) metricStudents.textContent = totalStudents;
+  if (metricAvg) metricAvg.textContent = `${avgScore}%`;
+
+  if (adminStudents) adminStudents.textContent = totalStudents;
+  if (adminReady) adminReady.textContent = certificatesReady;
+  if (adminAvgScore) adminAvgScore.textContent = `${avgScore}%`;
 }
 
 function updateSessionUI() {
@@ -158,20 +163,27 @@ function updateSessionUI() {
   const sessionInfo = document.getElementById("sessionInfo");
 
   if (!currentUserEmail) {
-    metricUser.textContent = "Guest";
-    metricRole.textContent = "No active session";
-    sessionInfo.textContent = "No user logged in.";
+    if (metricUser) metricUser.textContent = "Guest";
+    if (metricRole) metricRole.textContent = "No active session";
+    if (sessionInfo) sessionInfo.textContent = "No user logged in.";
     return;
   }
 
-  metricUser.textContent = currentUserEmail;
-  metricRole.textContent = currentUserRole === "admin" ? "Administrator account" : "Student account";
-  sessionInfo.textContent = `Logged in as ${currentUserEmail} (${currentUserRole})`;
+  if (metricUser) metricUser.textContent = currentUserEmail;
+  if (metricRole) {
+    metricRole.textContent =
+      currentUserRole === "admin" ? "Administrator account" : "Student account";
+  }
+  if (sessionInfo) {
+    sessionInfo.textContent = `Logged in as ${currentUserEmail} (${currentUserRole})`;
+  }
 }
 
 function renderPortal() {
   const portalEmpty = document.getElementById("portalEmpty");
   const portalContent = document.getElementById("portalContent");
+
+  if (!portalEmpty || !portalContent) return;
 
   if (!currentStudent) {
     portalEmpty.classList.remove("hidden");
@@ -182,30 +194,48 @@ function renderPortal() {
   portalEmpty.classList.add("hidden");
   portalContent.classList.remove("hidden");
 
-  document.getElementById("portalAvatar").textContent = (currentStudent.fullName || "S").charAt(0).toUpperCase();
-  document.getElementById("portalName").textContent = currentStudent.fullName || "-";
-  document.getElementById("portalCourse").textContent = currentStudent.course || "-";
-  document.getElementById("portalEmail").textContent = currentStudent.email || "-";
-  document.getElementById("portalScore").textContent = `${currentStudent.examScore || 0}%`;
-  document.getElementById("portalAttendance").textContent = `${currentStudent.attendance || 0}%`;
-  document.getElementById("portalCertificate").textContent = currentStudent.certificateReady ? "Ready" : "Pending";
-  document.getElementById("portalStudentId").textContent = currentStudent.id || "-";
+  const avatar = document.getElementById("portalAvatar");
+  const portalName = document.getElementById("portalName");
+  const portalCourse = document.getElementById("portalCourse");
+  const portalEmail = document.getElementById("portalEmail");
+  const portalScore = document.getElementById("portalScore");
+  const portalAttendance = document.getElementById("portalAttendance");
+  const portalCertificate = document.getElementById("portalCertificate");
+  const portalStudentId = document.getElementById("portalStudentId");
+
+  if (avatar) avatar.textContent = (currentStudent.fullName || "S").charAt(0).toUpperCase();
+  if (portalName) portalName.textContent = currentStudent.fullName || "-";
+  if (portalCourse) portalCourse.textContent = currentStudent.course || "-";
+  if (portalEmail) portalEmail.textContent = currentStudent.email || "-";
+  if (portalScore) portalScore.textContent = `${currentStudent.examScore || 0}%`;
+  if (portalAttendance) portalAttendance.textContent = `${currentStudent.attendance || 0}%`;
+  if (portalCertificate) portalCertificate.textContent = currentStudent.certificateReady ? "Ready" : "Pending";
+  if (portalStudentId) portalStudentId.textContent = currentStudent.id || "-";
 }
 
 function fillCertificate(student) {
   if (!student) return;
 
-  const brandName = document.getElementById("brandName").value || "CoTeSy IT Services";
-  const directorName = document.getElementById("directorName").value || "CoTeSy Director / Trainer";
+  const brandName = document.getElementById("brandName")?.value || "CoTeSy IT Services";
+  const directorName = document.getElementById("directorName")?.value || "CoTeSy Director / Trainer";
 
-  document.getElementById("certBrand").textContent = brandName;
-  document.getElementById("certBrandFooter").textContent = brandName;
-  document.getElementById("certDirector").textContent = directorName;
-  document.getElementById("certStudentName").textContent = student.fullName || "Student Name";
-  document.getElementById("certCourse").textContent = student.course || "Course Name";
-  document.getElementById("certStudentId").textContent = student.id || "CTS-000";
-  document.getElementById("certScore").textContent = `${student.examScore || 0}%`;
-  document.getElementById("certDate").textContent = new Date().toLocaleDateString();
+  const certBrand = document.getElementById("certBrand");
+  const certBrandFooter = document.getElementById("certBrandFooter");
+  const certDirector = document.getElementById("certDirector");
+  const certStudentName = document.getElementById("certStudentName");
+  const certCourse = document.getElementById("certCourse");
+  const certStudentId = document.getElementById("certStudentId");
+  const certScore = document.getElementById("certScore");
+  const certDate = document.getElementById("certDate");
+
+  if (certBrand) certBrand.textContent = brandName;
+  if (certBrandFooter) certBrandFooter.textContent = brandName;
+  if (certDirector) certDirector.textContent = directorName;
+  if (certStudentName) certStudentName.textContent = student.fullName || "Student Name";
+  if (certCourse) certCourse.textContent = student.course || "Course Name";
+  if (certStudentId) certStudentId.textContent = student.id || "CTS-000";
+  if (certScore) certScore.textContent = `${student.examScore || 0}%`;
+  if (certDate) certDate.textContent = new Date().toLocaleDateString();
 }
 
 function renderCertificateStudentList() {
@@ -285,7 +315,9 @@ function startEditStudent(docId) {
 }
 
 function resetStudentForm() {
-  document.getElementById("registerForm").reset();
+  const registerForm = document.getElementById("registerForm");
+  if (registerForm) registerForm.reset();
+
   document.getElementById("editDocId").value = "";
   document.getElementById("registerTitle").textContent = "Register Student";
   document.getElementById("saveStudentBtn").textContent = "Register Student";
@@ -503,24 +535,24 @@ function bindStaticEvents() {
     });
   });
 
-  document.getElementById("loginBtn").addEventListener("click", loginUser);
-  document.getElementById("logoutBtn").addEventListener("click", logoutUser);
-  document.getElementById("registerForm").addEventListener("submit", saveStudent);
-  document.getElementById("cancelEditBtn").addEventListener("click", resetStudentForm);
+  document.getElementById("loginBtn")?.addEventListener("click", loginUser);
+  document.getElementById("logoutBtn")?.addEventListener("click", logoutUser);
+  document.getElementById("registerForm")?.addEventListener("submit", saveStudent);
+  document.getElementById("cancelEditBtn")?.addEventListener("click", resetStudentForm);
 
-  document.getElementById("useLoggedStudentBtn").addEventListener("click", () => {
+  document.getElementById("useLoggedStudentBtn")?.addEventListener("click", () => {
     if (currentStudent) fillCertificate(currentStudent);
   });
 
-  document.getElementById("brandName").addEventListener("input", () => {
+  document.getElementById("brandName")?.addEventListener("input", () => {
     if (currentStudent) fillCertificate(currentStudent);
   });
 
-  document.getElementById("directorName").addEventListener("input", () => {
+  document.getElementById("directorName")?.addEventListener("input", () => {
     if (currentStudent) fillCertificate(currentStudent);
   });
 
-  document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+  document.getElementById("downloadPdfBtn")?.addEventListener("click", () => {
     window.print();
   });
 }
