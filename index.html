@@ -1,151 +1,360 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CoTeSy IT Services | Training Portal</title>
-
-<link rel="stylesheet" href="style.css">
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoTeSy IT Services | Training Portal</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-<!-- LOGIN PAGE -->
-
-<div id="loginPage" class="page active">
-
-<div class="login-card">
-
-<img src="cotesy-logo.png" class="login-logo">
-
-<h2>CoTeSy IT Services</h2>
-<p>Student Training Portal</p>
-
-<input id="loginEmail" type="email" placeholder="Email">
-<input id="loginPassword" type="password" placeholder="Password">
-
-<button id="loginBtn">Login</button>
-
-<div id="loginMessage"></div>
-
-</div>
-
-</div>
-
-
-<!-- APP -->
-
-<div id="appShell" class="hidden">
-
-<header class="hero">
-
-<div class="container hero-inner">
-
-<div class="brand">
-
-<img src="cotesy-logo.png" class="brand-logo-img">
-
-<div>
-<h1>CoTeSy IT Services</h1>
-<p>Online Computer Training Academy</p>
-</div>
-
-</div>
-
-</div>
-
-</header>
-
-
-<nav class="nav">
-
-<button class="nav-btn" data-section="home">Home</button>
-<button class="nav-btn" data-section="courses">Courses</button>
-<button class="nav-btn" data-section="portal">Portal</button>
-<button class="nav-btn admin-only" data-section="admin">Admin</button>
-<button id="logoutBtn">Logout</button>
-
-</nav>
-
-
-<main class="container">
-
-<section id="home" class="page active">
-
-<h2>Welcome to CoTeSy Training</h2>
-
-</section>
-
-
-<section id="courses" class="page">
-
-<h2>Courses</h2>
-
-<div id="courseGrid"></div>
-
-</section>
-
-
-<section id="portal" class="page">
-
-<h2>Student Portal</h2>
-
-<div id="portalContent"></div>
-
-</section>
-
-
-<section id="admin" class="page">
-
-<h2>Admin Dashboard</h2>
-
-<table>
-
-<thead>
-
-<tr>
-<th>Name</th>
-<th>Email</th>
-<th>Course</th>
-<th>Score</th>
-</tr>
-
-</thead>
-
-<tbody id="adminTableBody"></tbody>
-
-</table>
-
-</section>
-
-
-<section id="certificates" class="page">
-
-<div id="certificateArea" class="certificate">
-
-<img src="cotesy-logo.png" class="cert-logo">
-
-<h2>Certificate of Completion</h2>
-
-<p>This certifies that</p>
-
-<h1 id="certStudentName">Student Name</h1>
-
-<p>Completed</p>
-
-<h3 id="certCourse">Course</h3>
-
-</div>
-
-<button onclick="window.print()">Download Certificate</button>
-
-</section>
-
-</main>
-
-</div>
-
-<script type="module" src="script.js"></script>
-
+  <!-- LOGIN -->
+  <section id="loginPage" class="login-page active">
+    <div class="login-wrap">
+      <div class="login-brand">
+        <img src="cotesy-logo.png" alt="CoTeSy Logo" class="login-logo" />
+        <h1>CoTeSy IT Services</h1>
+        <p>Online Training Academy Portal</p>
+      </div>
+
+      <div class="card login-card">
+        <h2>Login First</h2>
+        <div class="form-grid">
+          <input type="email" id="loginEmail" placeholder="Email Address" />
+          <input type="password" id="loginPassword" placeholder="Password" />
+          <button id="loginBtn" class="btn primary" type="button">Login</button>
+        </div>
+        <div id="loginMessage" class="message"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- APP -->
+  <div id="appShell" class="hidden">
+    <header class="hero">
+      <div class="container hero-inner">
+        <div class="brand">
+          <img src="cotesy-logo.png" alt="CoTeSy Logo" class="brand-logo-img" />
+          <div>
+            <h1>CoTeSy IT Services</h1>
+            <p>Online Computer Training Academy</p>
+          </div>
+        </div>
+
+        <div class="hero-copy">
+          <span class="pill">Professional Online Training</span>
+          <h2>Student registration, portal, exams, attendance, certificates, and admin tools.</h2>
+          <p>Powered by Firebase Authentication and Firestore.</p>
+
+          <div class="hero-stats">
+            <div class="stat-card">
+              <span>Students</span>
+              <strong id="statStudents">0</strong>
+            </div>
+            <div class="stat-card">
+              <span>Certificates Ready</span>
+              <strong id="statCertificates">0</strong>
+            </div>
+            <div class="stat-card">
+              <span>Average Score</span>
+              <strong id="statAvgScore">0%</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="nav">
+      <div class="container nav-inner">
+        <button class="nav-btn active" data-section="home" data-role="student,admin">Home</button>
+        <button class="nav-btn" data-section="courses" data-role="student,admin">Courses</button>
+        <button class="nav-btn" data-section="portal" data-role="student,admin">Student Portal</button>
+
+        <button class="nav-btn" data-section="register" data-role="admin">Register</button>
+        <button class="nav-btn" data-section="exams" data-role="admin">Exams</button>
+        <button class="nav-btn" data-section="attendance" data-role="admin">Attendance</button>
+        <button class="nav-btn" data-section="certificates" data-role="admin">Certificates</button>
+        <button class="nav-btn" data-section="admin" data-role="admin">Admin</button>
+
+        <button id="logoutBtn" class="nav-btn nav-logout" type="button">Logout</button>
+      </div>
+    </nav>
+
+    <main class="container main-content">
+      <section id="home" class="page active">
+        <div class="grid-3 metrics-row">
+          <article class="metric-box">
+            <span>Total Students</span>
+            <h3 id="metricStudents">0</h3>
+            <p>Saved in Firebase Firestore</p>
+          </article>
+
+          <article class="metric-box">
+            <span>Average Exam Score</span>
+            <h3 id="metricAvg">0%</h3>
+            <p>Updated automatically</p>
+          </article>
+
+          <article class="metric-box">
+            <span>Logged-in User</span>
+            <h3 id="metricUser">Guest</h3>
+            <p id="metricRole">No active session</p>
+          </article>
+        </div>
+
+        <div class="card">
+          <h3>Welcome to CoTeSy Computer Training</h3>
+          <p>This system allows secure login, student registration, simple tests, attendance tracking, certificate generation, and full admin control.</p>
+        </div>
+      </section>
+
+      <section id="courses" class="page">
+        <h2 class="section-title">Available Courses</h2>
+        <div class="grid-4" id="courseGrid"></div>
+      </section>
+
+      <section id="portal" class="page">
+        <div class="grid-2">
+          <div class="card">
+            <h2 class="section-title">Student Dashboard</h2>
+            <div id="portalEmpty" class="notice-box">No student profile loaded.</div>
+
+            <div id="portalContent" class="hidden">
+              <div class="profile-box">
+                <img id="portalPhoto" class="profile-photo hidden" alt="Student Photo" />
+                <div class="avatar" id="portalAvatar">S</div>
+                <div>
+                  <h3 id="portalName">Student Name</h3>
+                  <p id="portalCourse">Course</p>
+                  <p id="portalEmail">Email</p>
+                </div>
+              </div>
+
+              <div class="grid-2 mini-cards">
+                <div class="mini-card"><span>Exam Score</span><strong id="portalScore">0%</strong></div>
+                <div class="mini-card"><span>Attendance</span><strong id="portalAttendance">0%</strong></div>
+                <div class="mini-card"><span>Certificate</span><strong id="portalCertificate">Pending</strong></div>
+                <div class="mini-card"><span>Student ID</span><strong id="portalStudentId">CTS-001</strong></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="section-title">Session</h2>
+            <div class="notice-box">
+              <p id="sessionInfo">No user logged in.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="register" class="page">
+        <div class="grid-2">
+          <div class="card">
+            <h2 class="section-title" id="registerTitle">Register Student</h2>
+
+            <form id="registerForm" class="form-grid">
+              <input type="hidden" id="editDocId" />
+              <input type="text" id="regName" placeholder="Full Name and Surname" required />
+              <input type="text" id="regIdNumber" placeholder="SA ID Number" required />
+              <input type="email" id="regEmail" placeholder="Email Address" required />
+              <input type="text" id="regPhone" placeholder="Phone Number" required />
+              <input type="password" id="regPassword" placeholder="Create Password (new student only)" />
+              <select id="regCourse" required>
+                <option value="Computer Basics">Computer Basics</option>
+                <option value="Microsoft Word">Microsoft Word</option>
+                <option value="Microsoft Excel">Microsoft Excel</option>
+                <option value="PowerPoint">PowerPoint</option>
+              </select>
+              <input type="url" id="regPhotoUrl" placeholder="Photo URL (optional)" />
+              <textarea id="regAddress" placeholder="Address"></textarea>
+
+              <div class="grid-2">
+                <button type="submit" id="saveStudentBtn" class="btn primary">Register Student</button>
+                <button type="button" id="cancelEditBtn" class="btn outline hidden">Cancel Edit</button>
+              </div>
+            </form>
+
+            <div id="registerMessage" class="message"></div>
+          </div>
+
+          <div class="card">
+            <h2 class="section-title">WhatsApp Alert</h2>
+            <p>After registration, a WhatsApp message link will be created.</p>
+            <div class="notice-box">
+              <p><strong>Tip:</strong> Replace the WhatsApp number in <code>script.js</code> if needed.</p>
+            </div>
+            <a id="whatsappLink" class="btn outline hidden" target="_blank">Send WhatsApp Registration Alert</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="exams" class="page">
+        <div class="grid-2">
+          <div class="card">
+            <h2 class="section-title">Simple Auto-Grading Exam</h2>
+            <select id="examStudentSelect"></select>
+            <div class="notice-box mt-16">
+              <p><strong>Pass Mark:</strong> 50%</p>
+              <p><strong>Result:</strong> Saved to Firebase student record</p>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="section-title">Questions</h2>
+            <form id="examForm" class="form-grid">
+              <div class="notice-box">
+                <p><strong>1. Which program is used to type letters?</strong></p>
+                <label><input type="radio" name="q1" value="1" /> Microsoft Word</label><br />
+                <label><input type="radio" name="q1" value="0" /> Paint</label>
+              </div>
+
+              <div class="notice-box">
+                <p><strong>2. Excel is mainly used for?</strong></p>
+                <label><input type="radio" name="q2" value="1" /> Spreadsheets and calculations</label><br />
+                <label><input type="radio" name="q2" value="0" /> Watching videos</label>
+              </div>
+
+              <div class="notice-box">
+                <p><strong>3. A mouse is used to?</strong></p>
+                <label><input type="radio" name="q3" value="1" /> Move the pointer</label><br />
+                <label><input type="radio" name="q3" value="0" /> Print paper</label>
+              </div>
+
+              <div class="notice-box">
+                <p><strong>4. PowerPoint is used to create?</strong></p>
+                <label><input type="radio" name="q4" value="1" /> Presentations</label><br />
+                <label><input type="radio" name="q4" value="0" /> Antivirus scans</label>
+              </div>
+
+              <button type="submit" class="btn primary">Submit Exam</button>
+            </form>
+            <div id="examMessage" class="message"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="attendance" class="page">
+        <div class="grid-2">
+          <div class="card">
+            <h2 class="section-title">Mark Attendance</h2>
+            <div class="form-grid">
+              <select id="attendanceStudentSelect"></select>
+              <select id="attendanceStatus">
+                <option value="Present">Present</option>
+                <option value="Absent">Absent</option>
+              </select>
+              <button id="saveAttendanceBtn" type="button" class="btn primary">Save Attendance</button>
+            </div>
+            <div id="attendanceMessage" class="message"></div>
+          </div>
+
+          <div class="card">
+            <h2 class="section-title">Attendance Records</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Student</th>
+                    <th>Course</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="attendanceTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="certificates" class="page">
+        <div class="grid-2">
+          <div class="card">
+            <h2 class="section-title">Certificate Setup</h2>
+            <input type="text" id="brandName" value="CoTeSy IT Services" placeholder="Brand Name" />
+            <input type="text" id="directorName" class="mt-12" value="CoTeSy Director / Trainer" placeholder="Director Name" />
+            <button id="useLoggedStudentBtn" class="btn primary mt-16" type="button">Use Logged-in Student</button>
+
+            <div class="student-select-list" id="certificateStudentList"></div>
+          </div>
+
+          <div>
+            <div id="certificateArea" class="certificate-box">
+              <div class="certificate-inner">
+                <img src="cotesy-logo.png" alt="CoTeSy Logo" class="cert-logo" />
+                <p class="cert-brand" id="certBrand">CoTeSy IT Services</p>
+                <h2>Certificate of Completion</h2>
+                <p>This certificate is proudly awarded to</p>
+                <h3 id="certStudentName">Student Name</h3>
+                <p>for successfully completing</p>
+                <h4 id="certCourse">Course Name</h4>
+
+                <div class="cert-meta">
+                  <div><span>Student ID</span><strong id="certStudentId">CTS-001</strong></div>
+                  <div><span>Score</span><strong id="certScore">0%</strong></div>
+                  <div><span>Date</span><strong id="certDate"></strong></div>
+                </div>
+
+                <div id="certQrWrap" class="cert-qr-wrap">
+                  <div id="certQr"></div>
+                </div>
+
+                <div class="cert-signatures">
+                  <div>
+                    <span>Training Provider</span>
+                    <div class="sig-line"></div>
+                    <strong id="certBrandFooter">CoTeSy IT Services</strong>
+                  </div>
+                  <div>
+                    <span>Authorized Signature</span>
+                    <div class="sig-line"></div>
+                    <strong id="certDirector">CoTeSy Director / Trainer</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <button id="downloadPdfBtn" class="btn primary mt-16" type="button">Download / Save as PDF</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="admin" class="page">
+        <div class="grid-2">
+          <div class="card">
+            <h2 class="section-title">Admin Dashboard</h2>
+            <div class="grid-3 mini-cards">
+              <div class="mini-card"><span>Students</span><strong id="adminStudents">0</strong></div>
+              <div class="mini-card"><span>Certificates Ready</span><strong id="adminReady">0</strong></div>
+              <div class="mini-card"><span>Average Score</span><strong id="adminAvgScore">0%</strong></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2 class="section-title">Student Records</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Student ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Course</th>
+                    <th>Score</th>
+                    <th>Attendance</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="adminTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
