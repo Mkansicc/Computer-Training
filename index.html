@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CoTeSy IT Services | Training Portal</title>
   <link rel="stylesheet" href="style.css" />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
   <!-- LOGIN -->
@@ -22,13 +19,11 @@
 
       <div class="card login-card">
         <h2>Sign In</h2>
-
         <div class="form-grid">
           <input type="email" id="loginEmail" placeholder="Email Address" />
           <input type="password" id="loginPassword" placeholder="Password" />
           <button id="loginBtn" class="btn primary" type="button">Login</button>
         </div>
-
         <div id="loginMessage" class="message"></div>
       </div>
     </div>
@@ -64,19 +59,34 @@
             <span>Courses</span>
           </button>
 
+          <button class="learn-tab" data-section="coursePage">
+            <i class="fa-solid fa-book-open-reader"></i>
+            <span>Course</span>
+          </button>
+
+          <button class="learn-tab" data-section="materials">
+            <i class="fa-solid fa-folder-open"></i>
+            <span>Training Materials</span>
+          </button>
+
           <button class="learn-tab" data-section="assessments">
             <i class="fa-solid fa-file-circle-check"></i>
             <span>Assessments</span>
           </button>
 
-          <button class="learn-tab" data-section="elearning">
-            <i class="fa-solid fa-chalkboard-user"></i>
-            <span>e-Learning</span>
+          <button class="learn-tab" data-section="registrationPayment">
+            <i class="fa-solid fa-credit-card"></i>
+            <span>Registration & Payment</span>
           </button>
 
           <button class="learn-tab hidden" id="adminTab" data-section="adminPanel">
             <i class="fa-solid fa-user-shield"></i>
             <span>Admin</span>
+          </button>
+
+          <button class="learn-tab hidden" id="attendanceTab" data-section="attendancePage">
+            <i class="fa-solid fa-clipboard-user"></i>
+            <span>Attendance</span>
           </button>
         </nav>
       </div>
@@ -91,43 +101,97 @@
         <div class="course-grid" id="courseGrid"></div>
       </section>
 
+      <!-- COURSE PAGE -->
+      <section id="coursePage" class="page">
+        <div class="section-head">
+          <h2 id="currentCourseTitle">Course Details</h2>
+          <p>Course overview and learning information.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Selected Course</h3>
+            <div class="course-big-icon" id="courseBigIcon">
+              <i class="fa-solid fa-desktop"></i>
+            </div>
+            <h3 id="courseNameDisplay">Basic Computer</h3>
+            <p id="courseDescDisplay">
+              Learn the basics of using a computer, mouse, keyboard, files, folders, and desktop navigation.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>Course Information</h3>
+            <div class="mini-cards grid-2">
+              <div class="mini-card">
+                <span>Duration</span>
+                <strong id="courseDuration">4 Weeks</strong>
+              </div>
+              <div class="mini-card">
+                <span>Level</span>
+                <strong id="courseLevel">Beginner</strong>
+              </div>
+              <div class="mini-card">
+                <span>Certificate</span>
+                <strong>Yes</strong>
+              </div>
+              <div class="mini-card">
+                <span>Mode</span>
+                <strong>Online / In-person</strong>
+              </div>
+            </div>
+
+            <div class="mt-16">
+              <button id="goToMaterialsBtn" class="btn outline" type="button">Open Training Materials</button>
+              <button id="goToAssessmentBtn" class="btn primary" type="button">Open Assessment</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TRAINING MATERIALS -->
+      <section id="materials" class="page">
+        <div class="section-head">
+          <h2>Training Materials</h2>
+          <p>PDF files, YouTube links, and online quizzes for the selected course.</p>
+        </div>
+
+        <div class="material-tabs">
+          <button class="material-tab active" data-material="pdfs">PDF Materials</button>
+          <button class="material-tab" data-material="videos">YouTube Videos</button>
+          <button class="material-tab" data-material="quizzes">Online Quizzes</button>
+        </div>
+
+        <div id="pdfs" class="material-pane active">
+          <div class="card">
+            <h3>PDF Materials</h3>
+            <div id="pdfList" class="material-link-list"></div>
+          </div>
+        </div>
+
+        <div id="videos" class="material-pane">
+          <div class="card">
+            <h3>YouTube Video Links</h3>
+            <div id="videoList" class="material-link-list"></div>
+          </div>
+        </div>
+
+        <div id="quizzes" class="material-pane">
+          <div class="card">
+            <h3>Online Learning Quizzes</h3>
+            <div id="quizList" class="material-link-list"></div>
+          </div>
+        </div>
+      </section>
+
       <!-- ASSESSMENTS -->
       <section id="assessments" class="page">
         <div class="section-head">
           <h2>Assessments</h2>
-          <p>Select a course and complete your quiz.</p>
+          <p>Answer the questions below for the selected course.</p>
         </div>
 
-        <div class="assessment-grid">
-          <div class="card assessment-card">
-            <div class="assessment-top">
-              <span class="tag blue">Beginner</span>
-              <h3>Basic Computer Quiz</h3>
-            </div>
-            <p>Computer basics, computer parts, mouse, keyboard, and folders.</p>
-            <button class="btn primary open-assessment" data-course="Basic Computer">Start Assessment</button>
-          </div>
-
-          <div class="card assessment-card">
-            <div class="assessment-top">
-              <span class="tag blue">Beginner</span>
-              <h3>Microsoft Word Quiz</h3>
-            </div>
-            <p>Typing, formatting, saving, and opening documents.</p>
-            <button class="btn primary open-assessment" data-course="Microsoft Word">Start Assessment</button>
-          </div>
-
-          <div class="card assessment-card">
-            <div class="assessment-top">
-              <span class="tag blue">Beginner</span>
-              <h3>Microsoft Excel Quiz</h3>
-            </div>
-            <p>Cells, formulas, rows, columns, and spreadsheet basics.</p>
-            <button class="btn primary open-assessment" data-course="Microsoft Excel">Start Assessment</button>
-          </div>
-        </div>
-
-        <div class="card exam-card hidden" id="assessmentBox">
+        <div class="card exam-card">
           <h3 id="assessmentTitle">Assessment</h3>
 
           <form id="examForm" class="form-grid">
@@ -162,106 +226,41 @@
         </div>
       </section>
 
-      <!-- E-LEARNING -->
-      <section id="elearning" class="page">
+      <!-- REGISTRATION & PAYMENT -->
+      <section id="registrationPayment" class="page">
         <div class="section-head">
-          <h2>e-Learning</h2>
-          <p>Your portal and learning progress.</p>
+          <h2>Registration & Payment</h2>
+          <p>Complete your course registration and payment details.</p>
         </div>
 
         <div class="grid-2">
           <div class="card">
-            <h3>Your Learning Progress</h3>
-            <div class="mini-cards grid-2">
-              <div class="mini-card">
-                <span>Student Name</span>
-                <strong id="portalName">Student Name</strong>
-              </div>
-
-              <div class="mini-card">
-                <span>Email</span>
-                <strong id="portalEmail">student@email.com</strong>
-              </div>
-
-              <div class="mini-card">
-                <span>Course</span>
-                <strong id="portalCourse">Basic Computer</strong>
-              </div>
-
-              <div class="mini-card">
-                <span>Score</span>
-                <strong id="portalScore">0%</strong>
-              </div>
-            </div>
+            <h3>Course Registration</h3>
+            <form id="studentRegistrationForm" class="form-grid">
+              <input type="text" id="studentFullName" placeholder="Full Name and Surname" required />
+              <input type="email" id="studentEmailReg" placeholder="Email Address" required />
+              <input type="text" id="studentPhoneReg" placeholder="Phone Number" required />
+              <input type="text" id="studentSelectedCourse" placeholder="Selected Course" readonly />
+              <select id="paymentMethod" required>
+                <option value="">Select Payment Method</option>
+                <option value="Cash">Cash</option>
+                <option value="EFT">EFT</option>
+                <option value="Mobile Money">Mobile Money</option>
+                <option value="Card">Card</option>
+              </select>
+              <input type="text" id="paymentReference" placeholder="Payment Reference / Proof Number" />
+              <button type="submit" class="btn primary">Submit Registration</button>
+            </form>
+            <div id="studentRegistrationMessage" class="message"></div>
           </div>
 
           <div class="card">
-            <h3>Study Materials</h3>
-
-            <div class="material-list">
-              <div class="material-item">
-                <i class="fa-solid fa-desktop"></i>
-                <div>
-                  <strong>Basic Computer Notes</strong>
-                  <span>Computer parts, desktop, mouse, keyboard, files and folders.</span>
-                </div>
-              </div>
-
-              <div class="material-item">
-                <i class="fa-solid fa-file-word"></i>
-                <div>
-                  <strong>Microsoft Word Notes</strong>
-                  <span>Typing, formatting, saving, and printing.</span>
-                </div>
-              </div>
-
-              <div class="material-item">
-                <i class="fa-solid fa-file-excel"></i>
-                <div>
-                  <strong>Microsoft Excel Notes</strong>
-                  <span>Cells, formulas, tables, and calculations.</span>
-                </div>
-              </div>
-
-              <div class="material-item">
-                <i class="fa-solid fa-file-powerpoint"></i>
-                <div>
-                  <strong>Microsoft PowerPoint Notes</strong>
-                  <span>Slides, themes, transitions, and presenting.</span>
-                </div>
-              </div>
-
-              <div class="material-item">
-                <i class="fa-solid fa-envelope"></i>
-                <div>
-                  <strong>Microsoft Outlook Notes</strong>
-                  <span>Email, calendar, contacts, and scheduling.</span>
-                </div>
-              </div>
-
-              <div class="material-item">
-                <i class="fa-solid fa-database"></i>
-                <div>
-                  <strong>Microsoft Access Notes</strong>
-                  <span>Tables, forms, queries, and reports.</span>
-                </div>
-              </div>
-
-              <div class="material-item">
-                <i class="fa-solid fa-newspaper"></i>
-                <div>
-                  <strong>Microsoft Publisher Notes</strong>
-                  <span>Flyers, brochures, cards, and publications.</span>
-                </div>
-              </div>
-
-              <div class="material-item">
-                <i class="fa-solid fa-users-rectangle"></i>
-                <div>
-                  <strong>Microsoft Teams Notes</strong>
-                  <span>Meetings, channels, chats, and collaboration.</span>
-                </div>
-              </div>
+            <h3>Payment Details</h3>
+            <div class="notice-box">
+              <p><strong>Training Provider:</strong> CoTeSy IT Services</p>
+              <p><strong>Selected Course:</strong> <span id="paymentCourseName">Basic Computer</span></p>
+              <p><strong>Training Fee:</strong> Contact admin / set your fee here</p>
+              <p><strong>Note:</strong> After payment, send proof to the admin for confirmation.</p>
             </div>
           </div>
         </div>
@@ -271,13 +270,12 @@
       <section id="adminPanel" class="page">
         <div class="section-head">
           <h2>Admin Panel</h2>
-          <p>Manage students in Firebase Firestore.</p>
+          <p>Register students and manage records.</p>
         </div>
 
         <div class="grid-2">
           <div class="card">
-            <h3>Add Student Record</h3>
-
+            <h3>Admin Student Registration</h3>
             <form id="registerForm" class="form-grid">
               <input type="text" id="regName" placeholder="Full Name and Surname" required />
               <input type="email" id="regEmail" placeholder="Email Address" required />
@@ -294,7 +292,6 @@
               </select>
               <button type="submit" class="btn primary">Save Student Record</button>
             </form>
-
             <div id="registerMessage" class="message"></div>
           </div>
 
@@ -311,6 +308,54 @@
                   </tr>
                 </thead>
                 <tbody id="adminTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ATTENDANCE -->
+      <section id="attendancePage" class="page">
+        <div class="section-head">
+          <h2>Attendance Register</h2>
+          <p>Fill attendance and capture signature.</p>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <h3>Attendance Form</h3>
+            <form id="attendanceForm" class="form-grid">
+              <input type="date" id="attendanceDate" required />
+              <input type="text" id="attendanceStudentName" placeholder="Student Name" required />
+              <select id="attendanceStatus" required>
+                <option value="">Select Status</option>
+                <option value="Present">Present</option>
+                <option value="Absent">Absent</option>
+              </select>
+              <input type="text" id="attendanceCourse" placeholder="Course" required />
+              <label class="canvas-label">Student Signature</label>
+              <canvas id="signaturePad" width="500" height="180"></canvas>
+              <div class="signature-actions">
+                <button type="button" id="clearSignatureBtn" class="btn outline">Clear Signature</button>
+                <button type="submit" class="btn primary">Save Attendance</button>
+              </div>
+            </form>
+            <div id="attendanceMessage" class="message"></div>
+          </div>
+
+          <div class="card">
+            <h3>Attendance Records</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Name</th>
+                    <th>Status</th>
+                    <th>Course</th>
+                  </tr>
+                </thead>
+                <tbody id="attendanceTableBody"></tbody>
               </table>
             </div>
           </div>
