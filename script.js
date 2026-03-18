@@ -1,14 +1,64 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc,
+  collection,
+  getDocs,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* =========================================================
+   PASTE YOUR REAL FIREBASE CONFIG HERE
+   Keep the same config from your working Firebase project
+========================================================= */
+const firebaseConfig = {
+  apiKey: "PASTE_YOUR_API_KEY",
+  authDomain: "PASTE_YOUR_AUTH_DOMAIN",
+  projectId: "PASTE_YOUR_PROJECT_ID",
+  storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
+  appId: "PASTE_YOUR_APP_ID"
+};
+
+/* =========================================================
+   ADMIN EMAIL
+   Change this to your real admin email in Firebase Auth
+========================================================= */
+const ADMIN_EMAIL = "mkansicc@gmail.com";
+
+/* =========================================================
+   FIREBASE INIT
+========================================================= */
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* =========================================================
+   DOM
+========================================================= */
 const loginPage = document.getElementById("loginPage");
 const appShell = document.getElementById("appShell");
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
 const loginMessage = document.getElementById("loginMessage");
+
+const loginEmail = document.getElementById("loginEmail");
+const loginPassword = document.getElementById("loginPassword");
+
 const metricUser = document.getElementById("metricUser");
 const metricRole = document.getElementById("metricRole");
 
+const adminTab = document.getElementById("adminTab");
 const learnTabs = document.querySelectorAll(".learn-tab");
 const pages = document.querySelectorAll(".page");
-const adminOnlyTab = document.querySelector(".admin-only");
 
 const courseGrid = document.getElementById("courseGrid");
 const adminTableBody = document.getElementById("adminTableBody");
@@ -26,25 +76,9 @@ const assessmentTitle = document.getElementById("assessmentTitle");
 const examForm = document.getElementById("examForm");
 const examMessage = document.getElementById("examMessage");
 
-const demoUsers = [
-  {
-    name: "Admin Mkansi",
-    email: "mkansicc@gmail.com",
-    password: "Mkansi33",
-    role: "admin",
-    course: "All Courses",
-    score: 100
-  },
-  {
-    name: "Student Demo",
-    email: "student@cotesy.co.za",
-    password: "123456",
-    role: "student",
-    course: "Microsoft Word",
-    score: 0
-  }
-];
-
+/* =========================================================
+   DATA
+========================================================= */
 const courses = [
   {
     title: "Entrepreneurial Characteristics",
@@ -74,67 +108,71 @@ const courses = [
 ];
 
 let currentUser = null;
+let currentUserProfile = null;
 let selectedAssessmentCourse = "Microsoft Word";
 
-function saveUsers(users) {
-  localStorage.setItem("cotesy_users", JSON.stringify(users));
+/* =========================================================
+   HELPERS
+========================================================= */
+function setMessage(el, text, color = "#dc2626") {
+  el.textContent = text;
+  el.style.color = color;
 }
 
-function getUsers() {
-  const stored = localStorage.getItem("cotesy_users");
-  if (stored) return JSON.parse(stored);
-
-  saveUsers(demoUsers);
-  return demoUsers;
-}
-
-function saveSession(user) {
-  localStorage.setItem("cotesy_session", JSON.stringify(user));
-}
-
-function getSession() {
-  const stored = localStorage.getItem("cotesy_session");
-  return stored ? JSON.parse(stored) : null;
-}
-
-function clearSession() {
-  localStorage.removeItem("cotesy_session");
+function isAdminUser(user) {
+  return user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
 }
 
 function showPage(sectionId) {
   pages.forEach(page => page.classList.remove("active"));
   learnTabs.forEach(tab => tab.classList.remove("active"));
 
-  document.getElementById(sectionId)?.classList.add("active");
-  document.querySelector(`.learn-tab[data-section="${sectionId}"]`)?.classList.add("active");
+  const page = document.getElementById(sectionId);
+  const tab = document.querySelector(`.learn-tab[data-section="${sectionId}"]`);
+
+  if (page) page.classList.add("active");
+  if (tab) tab.classList.add("active");
 }
 
-function applyRoleUI() {
-  if (!currentUser) return;
-
-  metricUser.textContent = currentUser.name;
-  metricRole.textContent = currentUser.role.toUpperCase();
-
-  portalName.textContent = currentUser.name;
-  portalEmail.textContent = currentUser.email;
-  portalCourse.textContent = currentUser.course || "Computer Basics";
-  portalScore.textContent = `${currentUser.score || 0}%`;
-
-  if (currentUser.role === "admin") {
-    adminOnlyTab.classList.remove("hidden");
-  } else {
-    adminOnlyTab.classList.add("hidden");
-  }
-
-  showPage("courses");
+function openApp() {
+  loginPage.classList.remove("active");
+  appShell.classList.remove("hidden");
 }
 
+function openLogin() {
+  appShell.classList.add("hidden");
+  loginPage.classList.add("active");
+}
+
+async function getStudentProfileByUid(uid) {
+  const ref = doc(db, "students", uid);
+  const snap = await getDoc(ref);
+  return snap.exists() ? snap.data() : null;
+}
+
+async function saveStudentProfile(uid, data) {
+  await setDoc(doc(db, "students", uid), data, { merge: true });
+}
+
+async function fetchAllStudents() {
+  const snapshot = await getDocs(collection(db, "students"));
+  const rows = [];
+  snapshot.forEach(docSnap => {
+    rows.push({ id: docSnap.id, ...docSnap.data() });
+  });
+  return rows;
+}
+
+/* =========================================================
+   UI RENDER
+========================================================= */
 function renderCourses() {
   courseGrid.innerHTML = "";
 
   courses.forEach(course => {
     const card = document.createElement("div");
     card.className = "course-card";
+
     card.innerHTML = `
       <div class="course-image-wrap">
         <span class="free-badge">Free</span>
@@ -159,14 +197,14 @@ function renderCourses() {
         </div>
       </div>
     `;
+
     courseGrid.appendChild(card);
   });
 
   document.querySelectorAll(".start-course-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      const title = btn.dataset.title;
-      selectedAssessmentCourse = title;
-      assessmentTitle.textContent = `${title} Assessment`;
+      selectedAssessmentCourse = btn.dataset.title || "Microsoft Word";
+      assessmentTitle.textContent = `${selectedAssessmentCourse} Assessment`;
       assessmentBox.classList.remove("hidden");
       showPage("assessments");
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -174,113 +212,159 @@ function renderCourses() {
   });
 }
 
-function renderAdminTable() {
-  const users = getUsers().filter(user => user.role === "student");
+function renderPortal(profile) {
+  portalName.textContent = profile?.name || currentUser?.displayName || "Student";
+  portalEmail.textContent = currentUser?.email || "No email";
+  portalCourse.textContent = profile?.course || "Computer Basics";
+  portalScore.textContent = `${profile?.score ?? 0}%`;
 
+  metricUser.textContent = profile?.name || currentUser?.email || "User";
+  metricRole.textContent = isAdminUser(currentUser) ? "ADMIN" : "STUDENT";
+}
+
+async function renderAdminTable() {
+  if (!isAdminUser(currentUser)) return;
+
+  const students = await fetchAllStudents();
   adminTableBody.innerHTML = "";
 
-  users.forEach(user => {
+  if (students.length === 0) {
+    adminTableBody.innerHTML = `
+      <tr>
+        <td colspan="4">No student records found.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  students.forEach(student => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${user.name}</td>
-      <td>${user.email}</td>
-      <td>${user.course || ""}</td>
-      <td>${user.score || 0}%</td>
+      <td>${student.name || "-"}</td>
+      <td>${student.email || "-"}</td>
+      <td>${student.course || "-"}</td>
+      <td>${student.score ?? 0}%</td>
     `;
     adminTableBody.appendChild(tr);
   });
 }
 
-function login() {
-  const email = document.getElementById("loginEmail").value.trim().toLowerCase();
-  const password = document.getElementById("loginPassword").value.trim();
+function applyRoleUI() {
+  if (!currentUser) return;
 
-  const users = getUsers();
-  const foundUser = users.find(
-    user => user.email.toLowerCase() === email && user.password === password
-  );
+  if (isAdminUser(currentUser)) {
+    adminTab.classList.remove("hidden");
+  } else {
+    adminTab.classList.add("hidden");
+    if (document.getElementById("adminPanel").classList.contains("active")) {
+      showPage("courses");
+    }
+  }
+}
 
-  if (!foundUser) {
-    loginMessage.textContent = "Invalid email or password.";
-    loginMessage.style.color = "#dc2626";
+/* =========================================================
+   LOGIN / LOGOUT
+========================================================= */
+async function login() {
+  const email = loginEmail.value.trim();
+  const password = loginPassword.value.trim();
+
+  if (!email || !password) {
+    setMessage(loginMessage, "Please enter email and password.");
     return;
   }
 
-  currentUser = foundUser;
-  saveSession(foundUser);
+  try {
+    loginBtn.disabled = true;
+    loginBtn.textContent = "Signing in...";
 
-  loginPage.classList.remove("active");
-  appShell.classList.remove("hidden");
-  loginMessage.textContent = "";
+    await signInWithEmailAndPassword(auth, email, password);
 
-  renderCourses();
-  renderAdminTable();
-  applyRoleUI();
+    setMessage(loginMessage, "", "#15803d");
+  } catch (error) {
+    let msg = "Login failed. Please check your email and password.";
+
+    if (error.code === "auth/invalid-credential") {
+      msg = "Incorrect email or password.";
+    } else if (error.code === "auth/user-not-found") {
+      msg = "User not found in Firebase Authentication.";
+    } else if (error.code === "auth/wrong-password") {
+      msg = "Incorrect password.";
+    } else if (error.code === "auth/invalid-email") {
+      msg = "Invalid email address.";
+    }
+
+    setMessage(loginMessage, msg);
+  } finally {
+    loginBtn.disabled = false;
+    loginBtn.textContent = "Login";
+  }
 }
 
-function logout() {
-  clearSession();
-  currentUser = null;
-  appShell.classList.add("hidden");
-  loginPage.classList.add("active");
-  document.getElementById("loginEmail").value = "";
-  document.getElementById("loginPassword").value = "";
+async function logout() {
+  try {
+    await signOut(auth);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
-function registerStudent(e) {
+/* =========================================================
+   ADMIN SAVE STUDENT RECORD
+   This saves profile data in Firestore only.
+   It does NOT create Firebase Auth accounts from frontend.
+========================================================= */
+async function saveStudentRecord(e) {
   e.preventDefault();
 
-  if (!currentUser || currentUser.role !== "admin") {
-    registerMessage.textContent = "Only admin can add students.";
-    registerMessage.style.color = "#dc2626";
+  if (!currentUser || !isAdminUser(currentUser)) {
+    setMessage(registerMessage, "Only admin can save student records.");
     return;
   }
 
   const name = document.getElementById("regName").value.trim();
   const email = document.getElementById("regEmail").value.trim().toLowerCase();
   const phone = document.getElementById("regPhone").value.trim();
-  const password = document.getElementById("regPassword").value.trim();
   const course = document.getElementById("regCourse").value;
 
-  if (!name || !email || !password) {
-    registerMessage.textContent = "Please fill in all required fields.";
-    registerMessage.style.color = "#dc2626";
+  if (!name || !email || !course) {
+    setMessage(registerMessage, "Please fill in all required fields.");
     return;
   }
 
-  const users = getUsers();
-  const exists = users.some(user => user.email.toLowerCase() === email);
+  try {
+    const studentId = email.replace(/[^a-zA-Z0-9]/g, "_");
 
-  if (exists) {
-    registerMessage.textContent = "Student email already exists.";
-    registerMessage.style.color = "#dc2626";
-    return;
+    await setDoc(
+      doc(db, "students", studentId),
+      {
+        name,
+        email,
+        phone,
+        course,
+        score: 0,
+        updatedAt: new Date().toISOString()
+      },
+      { merge: true }
+    );
+
+    setMessage(registerMessage, "Student record saved successfully.", "#15803d");
+    registerForm.reset();
+    await renderAdminTable();
+  } catch (error) {
+    console.error(error);
+    setMessage(registerMessage, "Failed to save student record.");
   }
-
-  users.push({
-    name,
-    email,
-    phone,
-    password,
-    role: "student",
-    course,
-    score: 0
-  });
-
-  saveUsers(users);
-  renderAdminTable();
-
-  registerMessage.textContent = "Student added successfully.";
-  registerMessage.style.color = "#15803d";
-  registerForm.reset();
 }
 
-function submitAssessment(e) {
+/* =========================================================
+   ASSESSMENT
+========================================================= */
+async function submitAssessment(e) {
   e.preventDefault();
 
   if (!currentUser) {
-    examMessage.textContent = "Please login first.";
-    examMessage.style.color = "#dc2626";
+    setMessage(examMessage, "Please login first.");
     return;
   }
 
@@ -294,47 +378,109 @@ function submitAssessment(e) {
 
   const percent = Math.round((score / answers.length) * 100);
 
-  const users = getUsers();
-  const index = users.findIndex(user => user.email === currentUser.email);
+  try {
+    let profileId = currentUser.uid;
 
-  if (index !== -1) {
-    users[index].score = percent;
-    if (currentUser.role === "student") {
-      users[index].course = selectedAssessmentCourse;
+    if (!currentUserProfile && !isAdminUser(currentUser)) {
+      await saveStudentProfile(profileId, {
+        name: currentUser.displayName || currentUser.email,
+        email: currentUser.email,
+        course: selectedAssessmentCourse,
+        score: percent,
+        updatedAt: new Date().toISOString()
+      });
+    } else if (!isAdminUser(currentUser)) {
+      await updateDoc(doc(db, "students", profileId), {
+        course: selectedAssessmentCourse,
+        score: percent,
+        updatedAt: new Date().toISOString()
+      });
     }
-    saveUsers(users);
-    currentUser = users[index];
-    saveSession(currentUser);
+
+    if (!isAdminUser(currentUser)) {
+      currentUserProfile = {
+        ...(currentUserProfile || {}),
+        course: selectedAssessmentCourse,
+        score: percent
+      };
+      renderPortal(currentUserProfile);
+    }
+
+    setMessage(
+      examMessage,
+      `Assessment submitted successfully. Your score is ${percent}%.`,
+      percent >= 50 ? "#15803d" : "#dc2626"
+    );
+
+    examForm.reset();
+    if (isAdminUser(currentUser)) {
+      await renderAdminTable();
+    }
+  } catch (error) {
+    console.error(error);
+    setMessage(examMessage, "Could not save assessment result.");
+  }
+}
+
+/* =========================================================
+   AUTH STATE
+========================================================= */
+onAuthStateChanged(auth, async user => {
+  currentUser = user;
+  currentUserProfile = null;
+
+  if (!user) {
+    openLogin();
+    loginEmail.value = "";
+    loginPassword.value = "";
+    metricUser.textContent = "Guest";
+    metricRole.textContent = "No active session";
+    return;
   }
 
-  portalScore.textContent = `${percent}%`;
-  portalCourse.textContent = currentUser.course || selectedAssessmentCourse;
-
-  examMessage.textContent = `Assessment submitted successfully. Your score is ${percent}%.`;
-  examMessage.style.color = percent >= 50 ? "#15803d" : "#dc2626";
-
-  renderAdminTable();
-  examForm.reset();
-}
-
-function restoreSession() {
-  const session = getSession();
-  if (!session) return;
-
-  currentUser = session;
-  loginPage.classList.remove("active");
-  appShell.classList.remove("hidden");
-
+  openApp();
   renderCourses();
-  renderAdminTable();
   applyRoleUI();
-}
 
+  if (isAdminUser(user)) {
+    metricUser.textContent = user.email;
+    metricRole.textContent = "ADMIN";
+    portalName.textContent = "Administrator";
+    portalEmail.textContent = user.email;
+    portalCourse.textContent = "All Courses";
+    portalScore.textContent = "100%";
+    await renderAdminTable();
+  } else {
+    const profile = await getStudentProfileByUid(user.uid);
+
+    if (profile) {
+      currentUserProfile = profile;
+    } else {
+      const starterProfile = {
+        name: user.displayName || user.email?.split("@")[0] || "Student",
+        email: user.email,
+        course: "Computer Basics",
+        score: 0,
+        createdAt: new Date().toISOString()
+      };
+      await saveStudentProfile(user.uid, starterProfile);
+      currentUserProfile = starterProfile;
+    }
+
+    renderPortal(currentUserProfile);
+  }
+
+  showPage("courses");
+});
+
+/* =========================================================
+   EVENTS
+========================================================= */
 learnTabs.forEach(tab => {
   tab.addEventListener("click", () => {
     const section = tab.dataset.section;
 
-    if (section === "adminPanel" && (!currentUser || currentUser.role !== "admin")) {
+    if (section === "adminPanel" && !isAdminUser(currentUser)) {
       return;
     }
 
@@ -344,7 +490,7 @@ learnTabs.forEach(tab => {
 
 document.querySelectorAll(".open-assessment").forEach(btn => {
   btn.addEventListener("click", () => {
-    selectedAssessmentCourse = btn.dataset.course;
+    selectedAssessmentCourse = btn.dataset.course || "Microsoft Word";
     assessmentTitle.textContent = `${selectedAssessmentCourse} Assessment`;
     assessmentBox.classList.remove("hidden");
   });
@@ -353,13 +499,16 @@ document.querySelectorAll(".open-assessment").forEach(btn => {
 loginBtn.addEventListener("click", login);
 logoutBtn.addEventListener("click", logout);
 
+loginPassword.addEventListener("keydown", e => {
+  if (e.key === "Enter") login();
+});
+
 if (registerForm) {
-  registerForm.addEventListener("submit", registerStudent);
+  registerForm.addEventListener("submit", saveStudentRecord);
 }
 
 if (examForm) {
   examForm.addEventListener("submit", submitAssessment);
 }
 
-restoreSession();
 renderCourses();
