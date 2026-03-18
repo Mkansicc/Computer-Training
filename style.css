@@ -33,6 +33,10 @@ body {
   display: none !important;
 }
 
+.mt-16 {
+  margin-top: 16px;
+}
+
 /* LOGIN */
 .login-page {
   min-height: 100vh;
@@ -139,26 +143,27 @@ body {
   opacity: 0.9;
 }
 
-/* LEARNING NAV */
+/* NAV */
 .learning-nav-wrap {
   padding: 28px 0 0;
 }
 
 .learning-nav {
   display: flex;
-  gap: 22px;
+  gap: 14px;
   align-items: center;
   background: #f7f7f8;
   border: 1px solid #dcdde3;
   border-bottom: none;
   border-radius: 18px 18px 0 0;
   padding: 18px 20px 0;
+  flex-wrap: wrap;
 }
 
 .learn-tab {
   background: transparent;
   border: none;
-  padding: 16px 28px 18px;
+  padding: 16px 20px 18px;
   cursor: pointer;
   color: var(--primary);
   font-size: 1rem;
@@ -255,7 +260,8 @@ body {
   justify-content: center;
 }
 
-.course-icon-wrap {
+.course-icon-wrap,
+.course-big-icon {
   width: 78px;
   height: 78px;
   border-radius: 20px;
@@ -267,20 +273,15 @@ body {
   border: 1px solid rgba(22, 45, 116, 0.12);
 }
 
-.free-badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  background: #f2a234;
-  color: #fff;
-  font-weight: 700;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.95rem;
+.course-big-icon {
+  width: 100px;
+  height: 100px;
+  font-size: 2.4rem;
+  margin-bottom: 16px;
 }
 
 .course-body {
-  padding: 14px 16px 16px;
+  padding: 16px;
 }
 
 .recommended-pill {
@@ -296,25 +297,8 @@ body {
   font-size: 1rem;
   font-weight: 800;
   line-height: 1.25;
-  min-height: 50px;
-  margin-bottom: 14px;
-}
-
-.rating-row {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  margin-bottom: 14px;
-}
-
-.rating-row i {
-  color: #f19a2b;
-}
-
-.rating-score {
-  margin-left: 8px;
-  color: var(--primary);
-  font-weight: 700;
+  min-height: 48px;
+  margin-bottom: 20px;
 }
 
 .course-actions {
@@ -328,67 +312,66 @@ body {
   padding: 14px 12px;
 }
 
-/* ASSESSMENT */
-.assessment-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  margin-bottom: 22px;
-}
-
-.assessment-card h3 {
-  margin: 12px 0 10px;
-}
-
-.assessment-card p {
-  color: var(--muted);
-}
-
-.assessment-top {
+/* MATERIAL TABS */
+.material-tabs {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
 }
 
-.exam-card {
-  margin-top: 8px;
+.material-tab {
+  border: 1px solid var(--border);
+  background: var(--white);
+  color: var(--primary);
+  border-radius: 999px;
+  padding: 12px 18px;
+  cursor: pointer;
+  font-weight: 700;
 }
 
-/* MATERIALS */
-.material-list {
+.material-tab.active {
+  background: var(--primary);
+  color: var(--white);
+}
+
+.material-pane {
+  display: none;
+}
+
+.material-pane.active {
+  display: block;
+}
+
+.material-link-list {
   display: grid;
   gap: 12px;
 }
 
-.material-item {
+.material-link-item {
   display: flex;
-  gap: 14px;
   align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px;
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 14px;
   background: #fbfdff;
 }
 
-.material-item i {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  background: #e9f1ff;
-  color: var(--primary);
-  font-size: 1.15rem;
-}
-
-.material-item strong,
-.material-item span {
+.material-link-item strong,
+.material-link-item span {
   display: block;
 }
 
-.material-item span {
+.material-link-item span {
   color: var(--muted);
   margin-top: 4px;
+}
+
+/* ASSESSMENT */
+.exam-card {
+  margin-top: 8px;
 }
 
 /* TABLE */
@@ -437,11 +420,6 @@ textarea {
   outline: none;
 }
 
-textarea {
-  resize: vertical;
-  min-height: 90px;
-}
-
 .message {
   margin-top: 12px;
   min-height: 22px;
@@ -479,19 +457,28 @@ textarea {
   border: 1px solid #efc9c9;
 }
 
-.tag {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 0.84rem;
+/* SIGNATURE */
+.canvas-label {
   font-weight: 700;
-}
-
-.tag.blue {
-  background: #eaf1ff;
   color: var(--primary);
 }
 
+#signaturePad {
+  width: 100%;
+  max-width: 100%;
+  border: 2px dashed #b9c8e5;
+  border-radius: 16px;
+  background: #fff;
+  touch-action: none;
+}
+
+.signature-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* RESPONSIVE */
 @media (max-width: 1400px) {
   .course-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -499,11 +486,7 @@ textarea {
 }
 
 @media (max-width: 1100px) {
-  .assessment-grid,
-  .grid-2 {
-    grid-template-columns: 1fr;
-  }
-
+  .grid-2,
   .course-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -520,7 +503,13 @@ textarea {
     white-space: nowrap;
   }
 
+  .grid-2,
   .course-grid {
     grid-template-columns: 1fr;
+  }
+
+  .course-actions,
+  .signature-actions {
+    flex-direction: column;
   }
 }
