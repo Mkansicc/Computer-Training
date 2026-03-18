@@ -16,9 +16,6 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
-/* =========================
-   YOUR FIREBASE CONFIG
-========================= */
 const firebaseConfig = {
   apiKey: "AIzaSyD55TZo8jQg7lI2bnO68yn2z3a9KsOsQWs",
   authDomain: "computer-training-d3147.firebaseapp.com",
@@ -31,17 +28,11 @@ const firebaseConfig = {
 
 const ADMIN_EMAIL = "mkansicc@gmail.com";
 
-/* =========================
-   FIREBASE INIT
-========================= */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 getAnalytics(app);
 
-/* =========================
-   DOM
-========================= */
 const loginPage = document.getElementById("loginPage");
 const appShell = document.getElementById("appShell");
 const loginBtn = document.getElementById("loginBtn");
@@ -74,9 +65,6 @@ const assessmentTitle = document.getElementById("assessmentTitle");
 const examForm = document.getElementById("examForm");
 const examMessage = document.getElementById("examMessage");
 
-/* =========================
-   COURSES
-========================= */
 const courses = [
   { title: "Basic Computer", icon: "fa-solid fa-desktop", rating: "4.8" },
   { title: "Microsoft Word", icon: "fa-solid fa-file-word", rating: "4.9" },
@@ -92,9 +80,6 @@ let currentUser = null;
 let currentUserProfile = null;
 let selectedAssessmentCourse = "Basic Computer";
 
-/* =========================
-   HELPERS
-========================= */
 function setMessage(el, text, color = "#dc2626") {
   el.textContent = text;
   el.style.color = color;
@@ -144,9 +129,6 @@ async function fetchAllStudents() {
   return rows;
 }
 
-/* =========================
-   RENDER
-========================= */
 function renderCourses() {
   courseGrid.innerHTML = "";
 
@@ -175,8 +157,8 @@ function renderCourses() {
         </div>
 
         <div class="course-actions">
-          <button class="btn outline">Read More</button>
-          <button class="btn primary start-course-btn" data-title="${course.title}">Start</button>
+          <button class="btn outline" type="button">Read More</button>
+          <button class="btn primary start-course-btn" type="button" data-title="${course.title}">Start</button>
         </div>
       </div>
     `;
@@ -241,9 +223,6 @@ function applyRoleUI() {
   }
 }
 
-/* =========================
-   LOGIN / LOGOUT
-========================= */
 async function login() {
   const email = loginEmail.value.trim();
   const password = loginPassword.value.trim();
@@ -291,9 +270,6 @@ async function logout() {
   }
 }
 
-/* =========================
-   ADMIN SAVE STUDENT RECORD
-========================= */
 async function saveStudentRecord(e) {
   e.preventDefault();
 
@@ -337,9 +313,6 @@ async function saveStudentRecord(e) {
   }
 }
 
-/* =========================
-   ASSESSMENT
-========================= */
 async function submitAssessment(e) {
   e.preventDefault();
 
@@ -405,9 +378,6 @@ async function submitAssessment(e) {
   }
 }
 
-/* =========================
-   AUTH STATE
-========================= */
 onAuthStateChanged(auth, async user => {
   currentUser = user;
   currentUserProfile = null;
@@ -456,9 +426,6 @@ onAuthStateChanged(auth, async user => {
   showPage("courses");
 });
 
-/* =========================
-   EVENTS
-========================= */
 learnTabs.forEach(tab => {
   tab.addEventListener("click", () => {
     const section = tab.dataset.section;
