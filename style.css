@@ -57,24 +57,16 @@ body {
   margin-bottom: 22px;
 }
 
+.login-brand h1,
+.login-brand p {
+  margin: 0;
+}
+
 .login-logo {
   width: 90px;
   height: 90px;
   object-fit: contain;
   margin-bottom: 10px;
-}
-
-.demo-login {
-  margin-top: 14px;
-  background: #f8fbff;
-  border: 1px solid var(--border);
-  padding: 12px;
-  border-radius: 14px;
-  font-size: 0.92rem;
-}
-
-.demo-login p {
-  margin: 4px 0;
 }
 
 /* TOPBAR */
