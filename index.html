@@ -21,16 +21,14 @@
       </div>
 
       <div class="card login-card">
-        <h2>Login First</h2>
+        <h2>Sign In</h2>
+
         <div class="form-grid">
           <input type="email" id="loginEmail" placeholder="Email Address" />
           <input type="password" id="loginPassword" placeholder="Password" />
           <button id="loginBtn" class="btn primary" type="button">Login</button>
         </div>
-        <div class="demo-login">
-          <p><strong>Demo Admin:</strong> mkansicc@gmail.com</p>
-          <p><strong>Password:</strong> Mkansi33</p>
-        </div>
+
         <div id="loginMessage" class="message"></div>
       </div>
     </div>
@@ -58,7 +56,7 @@
       </div>
     </header>
 
-    <!-- MAIN LEARNING NAV -->
+    <!-- LEARNING TABS -->
     <section class="learning-nav-wrap">
       <div class="container">
         <nav class="learning-nav">
@@ -77,7 +75,7 @@
             <span>e-Learning</span>
           </button>
 
-          <button class="learn-tab admin-only hidden" data-section="adminPanel">
+          <button class="learn-tab hidden" id="adminTab" data-section="adminPanel">
             <i class="fa-solid fa-user-shield"></i>
             <span>Admin</span>
           </button>
@@ -91,6 +89,7 @@
         <div class="section-head">
           <h2>Available Courses</h2>
         </div>
+
         <div class="course-grid" id="courseGrid"></div>
       </section>
 
@@ -98,7 +97,7 @@
       <section id="assessments" class="page">
         <div class="section-head">
           <h2>Assessments</h2>
-          <p>Choose a course assessment below.</p>
+          <p>Select a course and complete your quiz.</p>
         </div>
 
         <div class="assessment-grid">
@@ -125,13 +124,14 @@
               <span class="tag blue">Beginner</span>
               <h3>PowerPoint Quiz</h3>
             </div>
-            <p>Slides, themes, inserting pictures, and presentations.</p>
+            <p>Slides, design, pictures, and presentation basics.</p>
             <button class="btn primary open-assessment" data-course="PowerPoint">Start Assessment</button>
           </div>
         </div>
 
         <div class="card exam-card hidden" id="assessmentBox">
           <h3 id="assessmentTitle">Assessment</h3>
+
           <form id="examForm" class="form-grid">
             <div class="notice-box">
               <p><strong>1. Which program is used to type letters?</strong></p>
@@ -159,6 +159,7 @@
 
             <button type="submit" class="btn primary">Submit Assessment</button>
           </form>
+
           <div id="examMessage" class="message"></div>
         </div>
       </section>
@@ -167,25 +168,29 @@
       <section id="elearning" class="page">
         <div class="section-head">
           <h2>e-Learning</h2>
-          <p>Study materials and student progress.</p>
+          <p>Your portal and learning progress.</p>
         </div>
 
         <div class="grid-2">
           <div class="card">
             <h3>Your Learning Progress</h3>
+
             <div class="mini-cards grid-2">
               <div class="mini-card">
                 <span>Student Name</span>
                 <strong id="portalName">Student Name</strong>
               </div>
+
               <div class="mini-card">
                 <span>Email</span>
                 <strong id="portalEmail">student@email.com</strong>
               </div>
+
               <div class="mini-card">
                 <span>Course</span>
                 <strong id="portalCourse">Computer Basics</strong>
               </div>
+
               <div class="mini-card">
                 <span>Score</span>
                 <strong id="portalScore">0%</strong>
@@ -195,12 +200,13 @@
 
           <div class="card">
             <h3>Study Materials</h3>
+
             <div class="material-list">
               <div class="material-item">
                 <i class="fa-solid fa-file-word"></i>
                 <div>
                   <strong>Microsoft Word Notes</strong>
-                  <span>Typing, formatting, saving, printing</span>
+                  <span>Typing, formatting, saving, and printing.</span>
                 </div>
               </div>
 
@@ -208,7 +214,7 @@
                 <i class="fa-solid fa-file-excel"></i>
                 <div>
                   <strong>Microsoft Excel Notes</strong>
-                  <span>Cells, formulas, calculations, tables</span>
+                  <span>Cells, formulas, calculations, and tables.</span>
                 </div>
               </div>
 
@@ -216,7 +222,7 @@
                 <i class="fa-solid fa-file-powerpoint"></i>
                 <div>
                   <strong>PowerPoint Notes</strong>
-                  <span>Slides, transitions, design, presenting</span>
+                  <span>Slides, transitions, themes, and presenting.</span>
                 </div>
               </div>
 
@@ -224,7 +230,7 @@
                 <i class="fa-solid fa-laptop"></i>
                 <div>
                   <strong>Computer Basics</strong>
-                  <span>Keyboard, mouse, folders, files, desktop</span>
+                  <span>Mouse, keyboard, folders, desktop, and files.</span>
                 </div>
               </div>
             </div>
@@ -236,16 +242,17 @@
       <section id="adminPanel" class="page">
         <div class="section-head">
           <h2>Admin Panel</h2>
+          <p>Manage students in Firebase Firestore.</p>
         </div>
 
         <div class="grid-2">
           <div class="card">
-            <h3>Add Student</h3>
+            <h3>Add Student Record</h3>
+
             <form id="registerForm" class="form-grid">
               <input type="text" id="regName" placeholder="Full Name and Surname" required />
               <input type="email" id="regEmail" placeholder="Email Address" required />
               <input type="text" id="regPhone" placeholder="Phone Number" />
-              <input type="password" id="regPassword" placeholder="Password" required />
               <select id="regCourse" required>
                 <option value="Computer Basics">Computer Basics</option>
                 <option value="Microsoft Word">Microsoft Word</option>
@@ -254,8 +261,9 @@
                 <option value="Introduction to AI">Introduction to AI</option>
                 <option value="Microsoft Outlook">Microsoft Outlook</option>
               </select>
-              <button type="submit" class="btn primary">Save Student</button>
+              <button type="submit" class="btn primary">Save Student Record</button>
             </form>
+
             <div id="registerMessage" class="message"></div>
           </div>
 
@@ -280,6 +288,6 @@
     </main>
   </div>
 
-  <script src="script.js"></script>
+  <script type="module" src="script.js"></script>
 </body>
 </html>
