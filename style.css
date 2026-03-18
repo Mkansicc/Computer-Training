@@ -9,7 +9,6 @@
   --border: #dfe5ee;
   --success: #15803d;
   --danger: #dc2626;
-  --warning: #f4a12b;
   --shadow: 0 8px 24px rgba(17, 24, 39, 0.08);
   --radius: 20px;
 }
@@ -253,13 +252,6 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.course-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
 }
 
 .course-icon-wrap {
