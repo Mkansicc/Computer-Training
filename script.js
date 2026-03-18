@@ -14,34 +14,34 @@ import {
   getDocs,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
-/* =========================================================
-   PASTE YOUR REAL FIREBASE CONFIG HERE
-========================================================= */
+/* =========================
+   YOUR FIREBASE CONFIG
+========================= */
 const firebaseConfig = {
-  apiKey: "PASTE_YOUR_API_KEY",
-  authDomain: "PASTE_YOUR_AUTH_DOMAIN",
-  projectId: "PASTE_YOUR_PROJECT_ID",
-  storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
-  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
-  appId: "PASTE_YOUR_APP_ID"
+  apiKey: "AIzaSyD55TZo8jQg7lI2bnO68yn2z3a9KsOsQWs",
+  authDomain: "computer-training-d3147.firebaseapp.com",
+  projectId: "computer-training-d3147",
+  storageBucket: "computer-training-d3147.firebasestorage.app",
+  messagingSenderId: "913118748940",
+  appId: "1:913118748940:web:6058740970bf85f9766929",
+  measurementId: "G-CJPNVG3JD2"
 };
 
-/* =========================================================
-   ADMIN EMAIL
-========================================================= */
 const ADMIN_EMAIL = "mkansicc@gmail.com";
 
-/* =========================================================
+/* =========================
    FIREBASE INIT
-========================================================= */
+========================= */
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+getAnalytics(app);
 
-/* =========================================================
+/* =========================
    DOM
-========================================================= */
+========================= */
 const loginPage = document.getElementById("loginPage");
 const appShell = document.getElementById("appShell");
 const loginBtn = document.getElementById("loginBtn");
@@ -74,59 +74,27 @@ const assessmentTitle = document.getElementById("assessmentTitle");
 const examForm = document.getElementById("examForm");
 const examMessage = document.getElementById("examMessage");
 
-/* =========================================================
+/* =========================
    COURSES
-========================================================= */
+========================= */
 const courses = [
-  {
-    title: "Basic Computer",
-    icon: "fa-solid fa-desktop",
-    rating: "4.8"
-  },
-  {
-    title: "Microsoft Word",
-    icon: "fa-solid fa-file-word",
-    rating: "4.9"
-  },
-  {
-    title: "Microsoft Excel",
-    icon: "fa-solid fa-file-excel",
-    rating: "4.9"
-  },
-  {
-    title: "Microsoft PowerPoint",
-    icon: "fa-solid fa-file-powerpoint",
-    rating: "4.8"
-  },
-  {
-    title: "Microsoft Outlook",
-    icon: "fa-solid fa-envelope",
-    rating: "4.7"
-  },
-  {
-    title: "Microsoft Access",
-    icon: "fa-solid fa-database",
-    rating: "4.7"
-  },
-  {
-    title: "Microsoft Publisher",
-    icon: "fa-solid fa-newspaper",
-    rating: "4.6"
-  },
-  {
-    title: "Microsoft Teams",
-    icon: "fa-solid fa-users-rectangle",
-    rating: "4.8"
-  }
+  { title: "Basic Computer", icon: "fa-solid fa-desktop", rating: "4.8" },
+  { title: "Microsoft Word", icon: "fa-solid fa-file-word", rating: "4.9" },
+  { title: "Microsoft Excel", icon: "fa-solid fa-file-excel", rating: "4.9" },
+  { title: "Microsoft PowerPoint", icon: "fa-solid fa-file-powerpoint", rating: "4.8" },
+  { title: "Microsoft Outlook", icon: "fa-solid fa-envelope", rating: "4.7" },
+  { title: "Microsoft Access", icon: "fa-solid fa-database", rating: "4.7" },
+  { title: "Microsoft Publisher", icon: "fa-solid fa-newspaper", rating: "4.6" },
+  { title: "Microsoft Teams", icon: "fa-solid fa-users-rectangle", rating: "4.8" }
 ];
 
 let currentUser = null;
 let currentUserProfile = null;
 let selectedAssessmentCourse = "Basic Computer";
 
-/* =========================================================
+/* =========================
    HELPERS
-========================================================= */
+========================= */
 function setMessage(el, text, color = "#dc2626") {
   el.textContent = text;
   el.style.color = color;
@@ -176,9 +144,9 @@ async function fetchAllStudents() {
   return rows;
 }
 
-/* =========================================================
-   UI RENDER
-========================================================= */
+/* =========================
+   RENDER
+========================= */
 function renderCourses() {
   courseGrid.innerHTML = "";
 
@@ -244,11 +212,7 @@ async function renderAdminTable() {
   adminTableBody.innerHTML = "";
 
   if (students.length === 0) {
-    adminTableBody.innerHTML = `
-      <tr>
-        <td colspan="4">No student records found.</td>
-      </tr>
-    `;
+    adminTableBody.innerHTML = `<tr><td colspan="4">No student records found.</td></tr>`;
     return;
   }
 
@@ -277,9 +241,9 @@ function applyRoleUI() {
   }
 }
 
-/* =========================================================
+/* =========================
    LOGIN / LOGOUT
-========================================================= */
+========================= */
 async function login() {
   const email = loginEmail.value.trim();
   const password = loginPassword.value.trim();
@@ -296,6 +260,8 @@ async function login() {
     await signInWithEmailAndPassword(auth, email, password);
     setMessage(loginMessage, "", "#15803d");
   } catch (error) {
+    console.error("Firebase login error:", error);
+
     let msg = "Login failed. Please check your email and password.";
 
     if (error.code === "auth/invalid-credential") {
@@ -306,6 +272,8 @@ async function login() {
       msg = "Incorrect password.";
     } else if (error.code === "auth/invalid-email") {
       msg = "Invalid email address.";
+    } else if (error.code === "auth/network-request-failed") {
+      msg = "Network error. Check internet connection.";
     }
 
     setMessage(loginMessage, msg);
@@ -323,9 +291,9 @@ async function logout() {
   }
 }
 
-/* =========================================================
+/* =========================
    ADMIN SAVE STUDENT RECORD
-========================================================= */
+========================= */
 async function saveStudentRecord(e) {
   e.preventDefault();
 
@@ -369,9 +337,9 @@ async function saveStudentRecord(e) {
   }
 }
 
-/* =========================================================
+/* =========================
    ASSESSMENT
-========================================================= */
+========================= */
 async function submitAssessment(e) {
   e.preventDefault();
 
@@ -391,25 +359,27 @@ async function submitAssessment(e) {
   const percent = Math.round((score / answers.length) * 100);
 
   try {
-    let profileId = currentUser.uid;
-
-    if (!currentUserProfile && !isAdminUser(currentUser)) {
-      await saveStudentProfile(profileId, {
-        name: currentUser.displayName || currentUser.email,
-        email: currentUser.email,
-        course: selectedAssessmentCourse,
-        score: percent,
-        updatedAt: new Date().toISOString()
-      });
-    } else if (!isAdminUser(currentUser)) {
-      await updateDoc(doc(db, "students", profileId), {
-        course: selectedAssessmentCourse,
-        score: percent,
-        updatedAt: new Date().toISOString()
-      });
-    }
+    const profileId = currentUser.uid;
 
     if (!isAdminUser(currentUser)) {
+      const existingProfile = await getStudentProfileByUid(profileId);
+
+      if (!existingProfile) {
+        await saveStudentProfile(profileId, {
+          name: currentUser.displayName || currentUser.email,
+          email: currentUser.email,
+          course: selectedAssessmentCourse,
+          score: percent,
+          updatedAt: new Date().toISOString()
+        });
+      } else {
+        await updateDoc(doc(db, "students", profileId), {
+          course: selectedAssessmentCourse,
+          score: percent,
+          updatedAt: new Date().toISOString()
+        });
+      }
+
       currentUserProfile = {
         ...(currentUserProfile || {}),
         course: selectedAssessmentCourse,
@@ -435,9 +405,9 @@ async function submitAssessment(e) {
   }
 }
 
-/* =========================================================
+/* =========================
    AUTH STATE
-========================================================= */
+========================= */
 onAuthStateChanged(auth, async user => {
   currentUser = user;
   currentUserProfile = null;
@@ -486,9 +456,9 @@ onAuthStateChanged(auth, async user => {
   showPage("courses");
 });
 
-/* =========================================================
+/* =========================
    EVENTS
-========================================================= */
+========================= */
 learnTabs.forEach(tab => {
   tab.addEventListener("click", () => {
     const section = tab.dataset.section;
