@@ -104,9 +104,18 @@
           <div class="card assessment-card">
             <div class="assessment-top">
               <span class="tag blue">Beginner</span>
+              <h3>Basic Computer Quiz</h3>
+            </div>
+            <p>Computer basics, parts of a computer, and using the mouse and keyboard.</p>
+            <button class="btn primary open-assessment" data-course="Basic Computer">Start Assessment</button>
+          </div>
+
+          <div class="card assessment-card">
+            <div class="assessment-top">
+              <span class="tag blue">Beginner</span>
               <h3>Microsoft Word Quiz</h3>
             </div>
-            <p>Basic typing, formatting, saving, and opening documents.</p>
+            <p>Typing, formatting, saving, and opening documents.</p>
             <button class="btn primary open-assessment" data-course="Microsoft Word">Start Assessment</button>
           </div>
 
@@ -118,15 +127,6 @@
             <p>Cells, rows, columns, formulas, and spreadsheet basics.</p>
             <button class="btn primary open-assessment" data-course="Microsoft Excel">Start Assessment</button>
           </div>
-
-          <div class="card assessment-card">
-            <div class="assessment-top">
-              <span class="tag blue">Beginner</span>
-              <h3>PowerPoint Quiz</h3>
-            </div>
-            <p>Slides, design, pictures, and presentation basics.</p>
-            <button class="btn primary open-assessment" data-course="PowerPoint">Start Assessment</button>
-          </div>
         </div>
 
         <div class="card exam-card hidden" id="assessmentBox">
@@ -134,21 +134,21 @@
 
           <form id="examForm" class="form-grid">
             <div class="notice-box">
-              <p><strong>1. Which program is used to type letters?</strong></p>
-              <label><input type="radio" name="q1" value="1" /> Microsoft Word</label><br />
-              <label><input type="radio" name="q1" value="0" /> Paint</label>
+              <p><strong>1. Which device is used to move the pointer on the screen?</strong></p>
+              <label><input type="radio" name="q1" value="1" /> Mouse</label><br />
+              <label><input type="radio" name="q1" value="0" /> Printer</label>
             </div>
 
             <div class="notice-box">
-              <p><strong>2. Excel is mainly used for?</strong></p>
-              <label><input type="radio" name="q2" value="1" /> Spreadsheets and calculations</label><br />
-              <label><input type="radio" name="q2" value="0" /> Watching videos</label>
+              <p><strong>2. Which program is used to type letters and documents?</strong></p>
+              <label><input type="radio" name="q2" value="1" /> Microsoft Word</label><br />
+              <label><input type="radio" name="q2" value="0" /> Calculator</label>
             </div>
 
             <div class="notice-box">
-              <p><strong>3. A mouse is used to?</strong></p>
-              <label><input type="radio" name="q3" value="1" /> Move the pointer</label><br />
-              <label><input type="radio" name="q3" value="0" /> Print paper</label>
+              <p><strong>3. Excel is mainly used for?</strong></p>
+              <label><input type="radio" name="q3" value="1" /> Spreadsheets and calculations</label><br />
+              <label><input type="radio" name="q3" value="0" /> Watching movies</label>
             </div>
 
             <div class="notice-box">
@@ -188,7 +188,7 @@
 
               <div class="mini-card">
                 <span>Course</span>
-                <strong id="portalCourse">Computer Basics</strong>
+                <strong id="portalCourse">Basic Computer</strong>
               </div>
 
               <div class="mini-card">
@@ -202,6 +202,14 @@
             <h3>Study Materials</h3>
 
             <div class="material-list">
+              <div class="material-item">
+                <i class="fa-solid fa-desktop"></i>
+                <div>
+                  <strong>Basic Computer Notes</strong>
+                  <span>Computer parts, mouse, keyboard, desktop, files and folders.</span>
+                </div>
+              </div>
+
               <div class="material-item">
                 <i class="fa-solid fa-file-word"></i>
                 <div>
@@ -221,16 +229,40 @@
               <div class="material-item">
                 <i class="fa-solid fa-file-powerpoint"></i>
                 <div>
-                  <strong>PowerPoint Notes</strong>
+                  <strong>Microsoft PowerPoint Notes</strong>
                   <span>Slides, transitions, themes, and presenting.</span>
                 </div>
               </div>
 
               <div class="material-item">
-                <i class="fa-solid fa-laptop"></i>
+                <i class="fa-solid fa-envelope"></i>
                 <div>
-                  <strong>Computer Basics</strong>
-                  <span>Mouse, keyboard, folders, desktop, and files.</span>
+                  <strong>Microsoft Outlook Notes</strong>
+                  <span>Email, inbox, calendar, contacts, and scheduling.</span>
+                </div>
+              </div>
+
+              <div class="material-item">
+                <i class="fa-solid fa-database"></i>
+                <div>
+                  <strong>Microsoft Access Notes</strong>
+                  <span>Tables, forms, queries, and reports.</span>
+                </div>
+              </div>
+
+              <div class="material-item">
+                <i class="fa-solid fa-newspaper"></i>
+                <div>
+                  <strong>Microsoft Publisher Notes</strong>
+                  <span>Flyers, brochures, cards, and publications.</span>
+                </div>
+              </div>
+
+              <div class="material-item">
+                <i class="fa-solid fa-users-rectangle"></i>
+                <div>
+                  <strong>Microsoft Teams Notes</strong>
+                  <span>Meetings, chats, teams, channels, and collaboration.</span>
                 </div>
               </div>
             </div>
@@ -254,12 +286,14 @@
               <input type="email" id="regEmail" placeholder="Email Address" required />
               <input type="text" id="regPhone" placeholder="Phone Number" />
               <select id="regCourse" required>
-                <option value="Computer Basics">Computer Basics</option>
+                <option value="Basic Computer">Basic Computer</option>
                 <option value="Microsoft Word">Microsoft Word</option>
                 <option value="Microsoft Excel">Microsoft Excel</option>
-                <option value="PowerPoint">PowerPoint</option>
-                <option value="Introduction to AI">Introduction to AI</option>
+                <option value="Microsoft PowerPoint">Microsoft PowerPoint</option>
                 <option value="Microsoft Outlook">Microsoft Outlook</option>
+                <option value="Microsoft Access">Microsoft Access</option>
+                <option value="Microsoft Publisher">Microsoft Publisher</option>
+                <option value="Microsoft Teams">Microsoft Teams</option>
               </select>
               <button type="submit" class="btn primary">Save Student Record</button>
             </form>
