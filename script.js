@@ -17,7 +17,6 @@ import {
 
 /* =========================================================
    PASTE YOUR REAL FIREBASE CONFIG HERE
-   Keep the same config from your working Firebase project
 ========================================================= */
 const firebaseConfig = {
   apiKey: "PASTE_YOUR_API_KEY",
@@ -30,7 +29,6 @@ const firebaseConfig = {
 
 /* =========================================================
    ADMIN EMAIL
-   Change this to your real admin email in Firebase Auth
 ========================================================= */
 const ADMIN_EMAIL = "mkansicc@gmail.com";
 
@@ -77,39 +75,54 @@ const examForm = document.getElementById("examForm");
 const examMessage = document.getElementById("examMessage");
 
 /* =========================================================
-   DATA
+   COURSES
 ========================================================= */
 const courses = [
   {
-    title: "Entrepreneurial Characteristics",
-    image: "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=900&q=80",
-    rating: "3.0"
+    title: "Basic Computer",
+    icon: "fa-solid fa-desktop",
+    rating: "4.8"
   },
   {
-    title: "Introduction to AI",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=900&q=80",
-    rating: "4.0"
+    title: "Microsoft Word",
+    icon: "fa-solid fa-file-word",
+    rating: "4.9"
   },
   {
-    title: "Managing Workplace Conflicts",
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=900&q=80",
-    rating: "4.0"
+    title: "Microsoft Excel",
+    icon: "fa-solid fa-file-excel",
+    rating: "4.9"
   },
   {
-    title: "Mastering CV Construction and Interview Skills",
-    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=900&q=80",
-    rating: "4.0"
+    title: "Microsoft PowerPoint",
+    icon: "fa-solid fa-file-powerpoint",
+    rating: "4.8"
   },
   {
     title: "Microsoft Outlook",
-    image: "https://upload.wikimedia.org/wikipedia/commons/7/76/Microsoft_Office_Outlook_%282018-present%29.svg",
-    rating: "4.0"
+    icon: "fa-solid fa-envelope",
+    rating: "4.7"
+  },
+  {
+    title: "Microsoft Access",
+    icon: "fa-solid fa-database",
+    rating: "4.7"
+  },
+  {
+    title: "Microsoft Publisher",
+    icon: "fa-solid fa-newspaper",
+    rating: "4.6"
+  },
+  {
+    title: "Microsoft Teams",
+    icon: "fa-solid fa-users-rectangle",
+    rating: "4.8"
   }
 ];
 
 let currentUser = null;
 let currentUserProfile = null;
-let selectedAssessmentCourse = "Microsoft Word";
+let selectedAssessmentCourse = "Basic Computer";
 
 /* =========================================================
    HELPERS
@@ -176,7 +189,9 @@ function renderCourses() {
     card.innerHTML = `
       <div class="course-image-wrap">
         <span class="free-badge">Free</span>
-        <img src="${course.image}" alt="${course.title}" class="course-image" />
+        <div class="course-icon-wrap">
+          <i class="${course.icon}"></i>
+        </div>
       </div>
       <div class="course-body">
         <span class="recommended-pill">Recommended</span>
@@ -203,7 +218,7 @@ function renderCourses() {
 
   document.querySelectorAll(".start-course-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      selectedAssessmentCourse = btn.dataset.title || "Microsoft Word";
+      selectedAssessmentCourse = btn.dataset.title || "Basic Computer";
       assessmentTitle.textContent = `${selectedAssessmentCourse} Assessment`;
       assessmentBox.classList.remove("hidden");
       showPage("assessments");
@@ -215,7 +230,7 @@ function renderCourses() {
 function renderPortal(profile) {
   portalName.textContent = profile?.name || currentUser?.displayName || "Student";
   portalEmail.textContent = currentUser?.email || "No email";
-  portalCourse.textContent = profile?.course || "Computer Basics";
+  portalCourse.textContent = profile?.course || "Basic Computer";
   portalScore.textContent = `${profile?.score ?? 0}%`;
 
   metricUser.textContent = profile?.name || currentUser?.email || "User";
@@ -279,7 +294,6 @@ async function login() {
     loginBtn.textContent = "Signing in...";
 
     await signInWithEmailAndPassword(auth, email, password);
-
     setMessage(loginMessage, "", "#15803d");
   } catch (error) {
     let msg = "Login failed. Please check your email and password.";
@@ -311,8 +325,6 @@ async function logout() {
 
 /* =========================================================
    ADMIN SAVE STUDENT RECORD
-   This saves profile data in Firestore only.
-   It does NOT create Firebase Auth accounts from frontend.
 ========================================================= */
 async function saveStudentRecord(e) {
   e.preventDefault();
@@ -413,6 +425,7 @@ async function submitAssessment(e) {
     );
 
     examForm.reset();
+
     if (isAdminUser(currentUser)) {
       await renderAdminTable();
     }
@@ -459,7 +472,7 @@ onAuthStateChanged(auth, async user => {
       const starterProfile = {
         name: user.displayName || user.email?.split("@")[0] || "Student",
         email: user.email,
-        course: "Computer Basics",
+        course: "Basic Computer",
         score: 0,
         createdAt: new Date().toISOString()
       };
@@ -490,7 +503,7 @@ learnTabs.forEach(tab => {
 
 document.querySelectorAll(".open-assessment").forEach(btn => {
   btn.addEventListener("click", () => {
-    selectedAssessmentCourse = btn.dataset.course || "Microsoft Word";
+    selectedAssessmentCourse = btn.dataset.course || "Basic Computer";
     assessmentTitle.textContent = `${selectedAssessmentCourse} Assessment`;
     assessmentBox.classList.remove("hidden");
   });
